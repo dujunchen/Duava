@@ -23,148 +23,150 @@
     - 真实角色
     
   - 分类
-    1. 静态代理
+    - 静态代理
     
-      - 缺点：
+      - 缺点
+    
+        ```java
+          public interface Star {
+            //面谈
+        void confer();
+            //签合同
+            void signContract();
+            //订票
+            void bookTicket();
+            //唱歌
+            void sing();
+            //收钱
+            void collectMoney();
+          }
+        
+          public class RealStar implements Star {
+        
+            @Override
+            public void bookTicket() {
+            	System.out.println("RealStar.bookTicket()");
+            }
+        
+            @Override
+            public void collectMoney() {
+            	System.out.println("RealStar.collectMoney()");
+            }
+        
+            @Override
+            public void confer() {
+            	System.out.println("RealStar.confer()");
+            }
+        
+            @Override
+            public void signContract() {
+            	System.out.println("RealStar.signContract()");
+            }
+        
+            @Override
+            public void sing() {
+            	System.out.println("RealStar(周杰伦本人).sing()");
+            }
+          }
+        
+          public class ProxyStar implements Star {
+        
+            private Star star;
+        
+            public ProxyStar(Star star) {
+              super();
+              this.star = star;
+            }
+        
+            @Override
+            public void bookTicket() {
+            	System.out.println("ProxyStar.bookTicket()");
+            }
+        
+            @Override
+            public void collectMoney() {
+            	System.out.println("ProxyStar.collectMoney()");
+            }
+        
+        
+        
+            @Override
+            public void confer() {
+            	System.out.println("ProxyStar.confer()");
+            }
+        
+            @Override
+            public void signContract() {
+            	System.out.println("ProxyStar.signContract()");
+            }
+        
+            @Override
+            public void sing() {
+            	star.sing();
+            }
+          }
+        ```
+    
+        
+    
         - 真实主题与代理主题一一对应，增加真实主题也要增加代理。
         - 设计代理以前真实主题必须事先存在，不太灵活。
-      
-      ```java
-      public interface Star {
-          //面谈
-          void confer();
-          //签合同
-          void signContract();
-          //订票
-           void bookTicket();
-          //唱歌
-    void sing();
-          //收钱
-    void collectMoney();
-      }
-      
-      public class RealStar implements Star {
-      
-    @Override
-          public void bookTicket() {
-            System.out.println("RealStar.bookTicket()");
-          }
-      
-    @Override
-          public void collectMoney() {
-            System.out.println("RealStar.collectMoney()");
-          }
-      
-    @Override
-          public void confer() {
-            System.out.println("RealStar.confer()");
-          }
-      
-    @Override
-          public void signContract() {
-            System.out.println("RealStar.signContract()");
-          }
-      
-          @Override
-    public void sing() {
-            System.out.println("RealStar(周杰伦本人).sing()");
-    }
-      }
-
-      public class ProxyStar implements Star {
-      
-          private Star star;
-      
-    public ProxyStar(Star star) {
-            super();
-            this.star = star;
-          }
-      
-    @Override
-          public void bookTicket() {
-            System.out.println("ProxyStar.bookTicket()");
-          }
-      
-    @Override
-          public void collectMoney() {
-            System.out.println("ProxyStar.collectMoney()");
-          }
-      
-    @Override
-          public void confer() {
-            System.out.println("ProxyStar.confer()");
-          }
-      
-    @Override
-          public void signContract() {
-            System.out.println("ProxyStar.signContract()");
-          }
-      
-          @Override
-          public void sing() {
-            star.sing();
-          }
-      }
-      ```
     
-    
-    2. 动态代理 （动态代理原理专题） 
-  - 实现方式：jdk自带、javassist、CGlib、 Asm都可以动态生成代理类。
-      
+    - 动态代理 （**动态代理原理待完善**） 
+      - 实现方式：jdk自带、javassist、CGlib、 Asm都可以动态生成代理类。
       - 比静态代理的优势：可以自动生成代理类，抽象角色中(接口)声明的所有方法都被转移到调用处理器一个集中的方法InvokeHandler.invoke()中处理，这样，我们可以更加灵活和统一的处理众多的方法。
-      
       - jdk自带动态代理
-      
-        ```java
-         public interface Star {
-                
-            	int bookTicket(String p);
-            	
-            	void sing();
-            	//其余方法略
-            }
-        public class RealStar implements Star {
-        
-                @Override
-                public int bookTicket(String p) {
-                	System.out.println("RealStar.bookTicket()");
-                	return Integer.parseInt(p);
-                }
-                
-                @Override
-                public void sing() {
-                	System.out.println("RealStar(周杰伦本人).sing()");
-                }
+    
+    ```java
+     public interface Star {
+            
+        	int bookTicket(String p);
+        	
+        	void sing();
+        	//其余方法略
+        }
+    public class RealStar implements Star {
+    
+            @Override
+            public int bookTicket(String p) {
+            	System.out.println("RealStar.bookTicket()");
+            	return Integer.parseInt(p);
             }
             
-        public class Client {    
-          public static void main(String[] args) {
-            final Star real = new RealStar();
-            Star proxy = (Star)Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[] { Star.class }, new InvocationHandler() {
-              @Override
-              //代理对象所实现接口中的所有方法被调用时，都会委托给InvocationHandler.invoke()方法。  
-              //InvocationHandler.invoke()方法返回结果就是调用真实角色中对应方法的返回结果
-              //proxy为自动生成的代理对象，method为当前调用真实角色中的方法，args为该方法的参数列表
-           		//该方法返回值就是真实角色中的该方法的返回值
-              public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                System.out.println(proxy.getClass());	//class com.sun.proxy.$Proxy0
-                System.out.println(method.getName());	//bookTicket
-                System.out.println(Arrays.toString(args));//[200]
-                Object res = method.invoke(real, args);//代理会转发给真实对象调用该方法
-                System.out.println(res);//200
-                return res;
-              }
-            });
-            proxy.sing();
-            System.out.println("-------");
-            Object res = proxy.bookTicket("200");
-            System.out.println("-------");
-            System.out.println(res);
-          }
+            @Override
+            public void sing() {
+            	System.out.println("RealStar(周杰伦本人).sing()");
+            }
         }
-        ```
-      
         
+    public class Client {    
+      public static void main(String[] args) {
+        final Star real = new RealStar();
+        Star proxy = (Star)Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[] { Star.class }, new InvocationHandler() {
+          @Override
+          //代理对象所实现接口中的所有方法被调用时，都会委托给InvocationHandler.invoke()方法。  
+          //InvocationHandler.invoke()方法返回结果就是调用真实角色中对应方法的返回结果
+          //proxy为自动生成的代理对象，method为当前调用真实角色中的方法，args为该方法的参数列表
+       		//该方法返回值就是真实角色中的该方法的返回值
+          public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            System.out.println(proxy.getClass());	//class com.sun.proxy.$Proxy0
+            System.out.println(method.getName());	//bookTicket
+            System.out.println(Arrays.toString(args));//[200]
+            Object res = method.invoke(real, args);//代理会转发给真实对象调用该方法
+            System.out.println(res);//200
+            return res;
+          }
+        });
+        proxy.sing();
+        System.out.println("-------");
+        Object res = proxy.bookTicket("200");
+        System.out.println("-------");
+        System.out.println(res);
+      }
+    }
+    ```
+    
+    
     
   - 代理工厂
 
@@ -253,7 +255,6 @@
       再见...
     ```
 
-    
   - 应用场景：  
     - struts2中拦截器的实现
     - 数据库连接池关闭处理

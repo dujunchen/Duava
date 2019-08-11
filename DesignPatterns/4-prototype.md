@@ -18,150 +18,149 @@
 
 - 实现方式：
 
-   1. 浅克隆
+   - 浅克隆
 
-      ```java
-      //以下代码全部省略setter、getter、toString
-      public class A {
-          private int a;
-      }
-      
-      public class B implements Cloneable{
-          private int b;
-          private A a;
-        
-          @Override
-          public Object clone() throws CloneNotSupportedException {
-              return super.clone();
-          }
-      }
-      
-      public class ShallowClone {
-          public static void main(String[] args) throws CloneNotSupportedException {
-              A a = new A();
-              a.setA(1);
-              B b = new B();
-              b.setA(a);
-              b.setB(2);
-              B b2 = (B)b.clone();
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-              b2.setB(3);
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-              b2.getA().setA(10);
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-          }
-      }
-      
-      //输出：
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=2, a=A{a=1}}
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=3, a=A{a=1}}
-      b-->B{b=2, a=A{a=10}}
-      b2-->B{b=3, a=A{a=10}}
-      
-      ```
-
-      通过上面的输出结果发现：浅克隆下克隆生成对象的基本数据类型（包括对应包装类）属性和String拷贝的是值，后续修改其值，并不会影响原来的对象里的值。但是引用类型属性拷贝的是引用，拷贝得到的对象和原来的对象的属性指向同一个对象。
-
-   2. 深克隆
-
-      ```java
-      public class A implements Cloneable{
-          private int a;
-      
-          @Override
-          public Object clone() throws CloneNotSupportedException {
-              return super.clone();
-          }
-      }
-      
-      public class B implements Cloneable{
-          private Integer b;
-          private A a;
-      
-          @Override
-          public Object clone() throws CloneNotSupportedException {
-            	//深克隆的关键在于将对象clone后，将对象中的引用类型(除了String)也clone一份赋值给新对象。
-              B b = (B) super.clone();
-              A a = b.getA();
-              b.setA((A) a.clone());
-              return b;
-          }
-      }
-      
-      public class DeepClone {
-          public static void main(String[] args) throws CloneNotSupportedException {
-              A a = new A();
-              a.setA(1);
-              B b = new B();
-              b.setA(a);
-              b.setB(2);
-              B b2 = (B)b.clone();
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-              b2.setB(3);
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-              b2.getA().setA(10);
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-          }
-      }
-      //输出：
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=2, a=A{a=1}}
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=3, a=A{a=1}}
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=3, a=A{a=10}}
-      ```
-      
-   3. 利用序列化和反序列化技术也可以实现深克隆。
+   ```java
+   //以下代码全部省略setter、getter、toString
+   public class A {
+       private int a;
+   }
    
-      ```java
-      public class A implements Serializable {
-          private int a;
-      }
-      public class B implements Serializable {
-          private Integer b;
-          private A a;
-      }
-      
-      public class DeepClone2 {
-          public static void main(String[] args) throws IOException, ClassNotFoundException {
-              A a = new A();
-              a.setA(1);
-              B b = new B();
-              b.setA(a);
-              b.setB(2);
-              //使用序列化和反序列化实现深克隆
-              ByteArrayOutputStream baos = new ByteArrayOutputStream();
-              ObjectOutputStream oos = new ObjectOutputStream(baos);
-              oos.writeObject(b);
-              ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
-              B b2 = (B) ois.readObject();
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-              b2.setB(3);
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-              b2.getA().setA(10);
-              System.out.println("b-->" + b);
-              System.out.println("b2-->" + b2);
-          }
-      }
-      //输出：
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=2, a=A{a=1}}
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=3, a=A{a=1}}
-      b-->B{b=2, a=A{a=1}}
-      b2-->B{b=3, a=A{a=10}}
-      ```
+   public class B implements Cloneable{
+       private int b;
+       private A a;
+     
+       @Override
+       public Object clone() throws CloneNotSupportedException {
+           return super.clone();
+       }
+   }
    
-      
+   public class ShallowClone {
+       public static void main(String[] args) throws CloneNotSupportedException {
+           A a = new A();
+           a.setA(1);
+           B b = new B();
+           b.setA(a);
+           b.setB(2);
+           B b2 = (B)b.clone();
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+           b2.setB(3);
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+           b2.getA().setA(10);
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+       }
+   }
+   
+   //输出：
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=2, a=A{a=1}}
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=3, a=A{a=1}}
+   b-->B{b=2, a=A{a=10}}
+   b2-->B{b=3, a=A{a=10}}
+   
+   ```
+
+   通过上面的输出结果发现：浅克隆下克隆生成对象的基本数据类型（包括对应包装类）属性和String拷贝的是值，后续修改其值，并不会影响原来的对象里的值。但是引用类型属性拷贝的是引用，拷贝得到的对象和原来的对象的属性指向同一个对象。
+
+   - 深克隆
+
+   ```java
+   public class A implements Cloneable{
+       private int a;
+   
+       @Override
+       public Object clone() throws CloneNotSupportedException {
+           return super.clone();
+       }
+   }
+   
+   public class B implements Cloneable{
+       private Integer b;
+       private A a;
+   
+       @Override
+       public Object clone() throws CloneNotSupportedException {
+         	//深克隆的关键在于将对象clone后，将对象中的引用类型(除了String)也clone一份赋值给新对象。
+           B b = (B) super.clone();
+           A a = b.getA();
+           b.setA((A) a.clone());
+           return b;
+       }
+   }
+   
+   public class DeepClone {
+       public static void main(String[] args) throws CloneNotSupportedException {
+           A a = new A();
+           a.setA(1);
+           B b = new B();
+           b.setA(a);
+           b.setB(2);
+           B b2 = (B)b.clone();
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+           b2.setB(3);
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+           b2.getA().setA(10);
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+       }
+   }
+   //输出：
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=2, a=A{a=1}}
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=3, a=A{a=1}}
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=3, a=A{a=10}}
+   ```
+   
+   - 利用序列化和反序列化技术也可以实现深克隆。
+   
+   ```java
+   public class A implements Serializable {
+       private int a;
+   }
+   public class B implements Serializable {
+       private Integer b;
+       private A a;
+   }
+   
+   public class DeepClone2 {
+       public static void main(String[] args) throws IOException, ClassNotFoundException {
+           A a = new A();
+           a.setA(1);
+           B b = new B();
+           b.setA(a);
+           b.setB(2);
+           //使用序列化和反序列化实现深克隆
+           ByteArrayOutputStream baos = new ByteArrayOutputStream();
+           ObjectOutputStream oos = new ObjectOutputStream(baos);
+           oos.writeObject(b);
+           ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+           B b2 = (B) ois.readObject();
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+           b2.setB(3);
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+           b2.getA().setA(10);
+           System.out.println("b-->" + b);
+           System.out.println("b2-->" + b2);
+       }
+   }
+   //输出：
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=2, a=A{a=1}}
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=3, a=A{a=1}}
+   b-->B{b=2, a=A{a=1}}
+   b2-->B{b=3, a=A{a=10}}
+   ```
+   
    

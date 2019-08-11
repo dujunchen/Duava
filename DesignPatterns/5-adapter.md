@@ -22,100 +22,100 @@
   
 - 代码实现
   
-  1. 类结构适配器
+  - 类结构适配器
   
-    ```java
-    public interface Target {
-        void request();
-    }
+  ```java
+  public interface Target {
+      void request();
+  }
 
-    public class Adaptee {
-        public void specificRequest()
-        {
-            System.out.println("现有组件库中的代码被调用！");
-        }
-    }
-    //类结构适配器是采用继承方式实现的
-    public class ClassAdapter extends Adaptee implements Target{
-        @Override
-        public void request() {
-            specificRequest();
-        }
-    }
+  public class Adaptee {
+      public void specificRequest()
+      {
+          System.out.println("现有组件库中的代码被调用！");
+      }
+  }
+  //类结构适配器是采用继承方式实现的
+  public class ClassAdapter extends Adaptee implements Target{
+      @Override
+      public void request() {
+          specificRequest();
+      }
+  }
 
-    public class ClassAdapterTest {
-        public static void main(String[] args) {
-            new ClassAdapter().request();
-        }
-    }
-    ```
+  public class ClassAdapterTest {
+      public static void main(String[] args) {
+          new ClassAdapter().request();
+      }
+  }
+  ```
   
-  2. 对象结构适配器
+  - 对象结构适配器
   
-     ```java
-     //对象结构适配器是采用组合方式实现的
-     public class ObjectAdapter implements Target{
+  ```java
+  //对象结构适配器是采用组合方式实现的
+  public class ObjectAdapter implements Target{
+   private Adaptee adaptee;
+      public ObjectAdapter(Adaptee adaptee) {
+          this.adaptee = adaptee;
+      }
+      @Override
+      public void request() {
+          adaptee.specificRequest();
+      }
+  }
+  public class ObjectAdapterTest {
+      public static void main(String[] args) {
+          new ObjectAdapter(new Adaptee()).request();
+      }
+  }
+  ```
+  
+  
+  
+  - 双向适配
+  
+  ```java
+  //Target接口和Adaptee和上面相同
+  public class TargetImpl implements Target{
+      @Override
+      public void request() {
+          System.out.println("目标接口被调用！");
+      }
+  }
+  
+  public class DoubleAdapter extends Adaptee implements Target{
       private Adaptee adaptee;
-         public ObjectAdapter(Adaptee adaptee) {
-             this.adaptee = adaptee;
-         }
-         @Override
-         public void request() {
-             adaptee.specificRequest();
-         }
-     }
-     public class ObjectAdapterTest {
-         public static void main(String[] args) {
-             new ObjectAdapter(new Adaptee()).request();
-         }
-     }
-     ```
-     
-     
+      private Target target;
   
-  3. 双向适配
+      public DoubleAdapter(Adaptee adaptee) {
+          this.adaptee = adaptee;
+      }
   
-     ```java
-     //Target接口和Adaptee和上面相同
-     public class TargetImpl implements Target{
-         @Override
-         public void request() {
-             System.out.println("目标接口被调用！");
-         }
-     }
-     
-     public class DoubleAdapter extends Adaptee implements Target{
-         private Adaptee adaptee;
-         private Target target;
-     
-         public DoubleAdapter(Adaptee adaptee) {
-             this.adaptee = adaptee;
-         }
-     
-         public DoubleAdapter(Target target) {
-             this.target = target;
-         }
-     
-         @Override
-         public void request() {
-             adaptee.specificRequest();
-         }
-     
-         @Override
-         public void specificRequest() {
-             target.request();
-         }
-     }
-     
-     public class DoubleAdapterTest {
-         public static void main(String[] args) {
-             //用新的接口规范的调用方式去调用现有组件库（老的接口）的方法
-            	// new DoubleAdapter(new Adaptee()).request();
-             //用现有组件库（老的接口）规范的调用方式去调用新的接口实现
-             new DoubleAdapter(new TargetImpl()).specificRequest();
-         }
-     }
-     
-     ```
+      public DoubleAdapter(Target target) {
+          this.target = target;
+      }
   
-     
+      @Override
+      public void request() {
+          adaptee.specificRequest();
+      }
+  
+      @Override
+      public void specificRequest() {
+          target.request();
+      }
+  }
+  
+  public class DoubleAdapterTest {
+      public static void main(String[] args) {
+          //用新的接口规范的调用方式去调用现有组件库（老的接口）的方法
+         	// new DoubleAdapter(new Adaptee()).request();
+          //用现有组件库（老的接口）规范的调用方式去调用新的接口实现
+          new DoubleAdapter(new TargetImpl()).specificRequest();
+      }
+  }
+  
+  ```
+  
+  

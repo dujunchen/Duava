@@ -24,18 +24,18 @@
   
 - 代码实现
 
-  ```java
-  public interface Component {
-      void operate();
-}
   
+  
+  ```java
+public interface Component {
+      void operate();
+  }
   public class Target implements Component{
       @Override
       public void operate() {
           System.out.println("调用真实对象方法。");
       }
   }
-  
   public abstract class Decorator implements Component{
       private Component component;
       public Decorator(Component component) {
@@ -46,7 +46,6 @@
           component.operate();
       }
   }
-  
   public class ConcreteDecorator extends Decorator{
       public ConcreteDecorator(Component component) {
           super(component);
@@ -60,7 +59,6 @@
           System.out.println("增加新功能。");
       }
   }
-  
   public class Client {
       public static void main(String[] args) {
           Component target = new Target();
@@ -71,9 +69,9 @@
   }
   
   //输出：
-  调用真实对象方法。
-  调用真实对象方法。
-  增加新功能。
+  //调用真实对象方法。
+  //调用真实对象方法。
+  //增加新功能。
   ```
   
   

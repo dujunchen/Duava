@@ -39,12 +39,12 @@
   
       @Override
       public void buildMainboard() {
-          computer.setHD("罗技键盘");
+          computer.setMainboard("罗技键盘");
       }
   
       @Override
       public void buildHD() {
-          computer.setMainboard("三星屏幕");
+          computer.setHD("三星屏幕");
       }
   
       @Override

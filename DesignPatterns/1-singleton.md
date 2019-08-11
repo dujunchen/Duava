@@ -132,62 +132,62 @@
 
   上面各种单例的实现中，除了枚举实现，其余几种单例实现方式都可以用反射或者反序列化破解。
 
-  1. 反射破解 
+  - 反射破解 
 
-    以饿汉式为例，其余同理：
+  以饿汉式为例，其余同理：
 
-    ```java
-    // 1.反射可以破解，通过Class.newInstance()调用无参构造器创建新对象。
-      private static void test() {
+  ```java
+  // 1.反射可以破解，通过Class.newInstance()调用无参构造器创建新对象。
+    private static void test() {
+      try {
+        HungrySingleton obj = HungrySingleton.class.newInstance();
+        HungrySingleton obj2 = HungrySingleton.class.newInstance();
+        System.out.println(obj.toString());
+        System.out.println(obj2.toString());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  ```
+  
+  解决方法：
+
+  ```java
+  //解决方法：可以在构造器中手动抛出异常以防止反射破解单例。
+    private HungrySingleton() {
+      if (instance != null) {
         try {
-          HungrySingleton obj = HungrySingleton.class.newInstance();
-          HungrySingleton obj2 = HungrySingleton.class.newInstance();
-          System.out.println(obj.toString());
-          System.out.println(obj2.toString());
+          throw new Exception("只能创建一个对象！");
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
-    ```
-    
-    解决方法：
-
-    ```java
-    //解决方法：可以在构造器中手动抛出异常以防止反射破解单例。
-      private HungrySingleton() {
-        if (instance != null) {
-          try {
-            throw new Exception("只能创建一个对象！");
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      }
-    ```
+    }
+  ```
 
   
 
-  2. 反序列化破解
+  - 反序列化破解
 
-    ```java
-  	// 2.反序列化可以破解
-     	private static void test() {
-     		HungrySingleton obj = HungrySingleton.getInstance();
-     		try {
-     			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("D:/1.txt"));
-     			oos.writeObject(obj);
-     			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("D:/1.txt"));
-     			HungrySingleton obj2 = (HungrySingleton) ois.readObject();
-     			System.out.println(obj.toString());
-     			System.out.println(obj2.toString());
-     		} catch (Exception e) {
-     			e.printStackTrace();
-     		}
-     	}
-    ```
-    
-     解决方法：
-    
+  ```java
+  // 2.反序列化可以破解
+   	private static void test() {
+   		HungrySingleton obj = HungrySingleton.getInstance();
+   		try {
+   			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("D:/1.txt"));
+   			oos.writeObject(obj);
+   			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("D:/1.txt"));
+   			HungrySingleton obj2 = (HungrySingleton) ois.readObject();
+   			System.out.println(obj.toString());
+   			System.out.println(obj2.toString());
+   		} catch (Exception e) {
+   			e.printStackTrace();
+   		}
+   	}
+  ```
+  
+  解决方法：
+  
   ```java
      	//解决方法：在单例类中增加readResolve()方法，方法内返回我们自己指定要返回的对象。
        //当JVM从内存中反序列化地"组装"一个新对象时，就会自动调用这个 readResolve方法来返回我们指定好的对象了，单例规则也就得到了保证。
@@ -201,4 +201,5 @@
 - 具体选用原则：
   
   - 单例对象占用资源少，不需要延时加载：枚举式好于饿汉式  
-- 单例对象占用资源大，需要延时加载：静态内部类式好于懒汉式
+  
+  - 单例对象占用资源大，需要延时加载：静态内部类式好于懒汉式

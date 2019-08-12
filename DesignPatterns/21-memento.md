@@ -97,7 +97,7 @@
         public void recover(MementoIF mementoIF){
             setState(((Memento)mementoIF).getState());
         }
-    		//黑盒设计的关键在于将Memento作为Originator的内部类，这样使得Memento的数据只能被Originator使用，外部对象无法对其访问。
+    //黑盒设计的关键在于将Memento作为Originator的内部类，这样使得Memento的数据只能被Originator使用，外部对象无法对其访问。
         private class Memento implements MementoIF{
             private String state;
     

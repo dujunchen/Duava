@@ -65,6 +65,7 @@
       public static void main(String[] args) {
           Component target = new Target();
           target.operate();
+        	System.out.println("---装饰前---");
           Component wrapper = new ConcreteDecorator(target);
           wrapper.operate();
       }
@@ -72,6 +73,7 @@
   
   //输出：
   调用真实对象方法。
+  ---装饰前---
   调用真实对象方法。
   增加新功能。
   

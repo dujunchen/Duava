@@ -18,3 +18,47 @@
 - 应用场景
   
   - XXX工具类 
+  
+- 代码实现
+
+  ```java
+  //子系统角色
+  class SubSystem01 {
+      public void method1() {
+          System.out.println("子系统01的method1()被调用！");
+      }
+  }
+  
+  //子系统角色
+  class SubSystem02 {
+      public void method2() {
+          System.out.println("子系统02的method2()被调用！");
+      }
+  }
+  
+  //子系统角色
+  class SubSystem03 {
+      public void method3() {
+          System.out.println("子系统03的method3()被调用！");
+      }
+  }
+  
+  //外观角色
+  class Facade {
+      private SubSystem01 s1 = new SubSystem01();
+      private SubSystem02 s2 = new SubSystem02();
+      private SubSystem03 s3 = new SubSystem03();
+  
+      public void invoke() {
+          s1.method1();
+          s2.method2();
+          s3.method3();
+      }
+  
+      public static void main(String[] args) {
+          new Facade().invoke();
+      }
+  }
+  ```
+
+  

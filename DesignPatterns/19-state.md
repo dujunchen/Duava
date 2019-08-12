@@ -39,7 +39,7 @@
           state.addScore(n, this);
           System.out.println("current: stateName-->" + state.getStateName() + ",score-->" + state.getScore());
       }
-  		//省略setter,getter
+  //省略setter,getter
   }
   //抽象状态类
   public abstract class AbstractState {

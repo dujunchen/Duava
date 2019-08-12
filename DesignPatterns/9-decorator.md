@@ -20,7 +20,7 @@
   
 - 应用场景：
   - io流设计
-  - Servlet API 中提供了一个request对象的Decorator设计模式的默认实现类HttpServletRequestWrapper，HttpServletRequestWrapper类，增强了request对象的功能。
+  - Servlet API 中提供了一个request对象的Decorator设计模式的默认实现类`HttpServletRequestWrapper`，`HttpServletRequestWrapper`类，增强了request对象的功能。
   
 - 代码实现
 

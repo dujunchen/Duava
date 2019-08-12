@@ -15,7 +15,7 @@
 
 - 浅克隆和深克隆
 
-   - Object自带clone是浅克隆实现，同时需要被复制的对象实现Cloneable接口。
+   - Object自带clone是浅克隆实现，同时需要被复制的对象实现`Cloneable`接口。
 
 - 实现方式
 
@@ -66,10 +66,11 @@
    
    ```
 
-   通过上面的输出结果发现：浅克隆下克隆生成对象的基本数据类型（包括对应包装类）属性和String拷贝的是值，后续修改其值，并不会影响原来的对象里的值。但是引用类型属性拷贝的是引用，拷贝得到的对象和原来的对象的属性指向同一个对象。
+   > 通过上面的输出结果发现：浅克隆下克隆生成对象的基本数据类型（包括对应包装类）属性和String拷贝的是值，后续修改克隆对象的该属性值，并不会影响原来的对象里的值。但是引用类型属性拷贝的是引用，拷贝得到的对象和原来的对象的属性指向同一个对象，所以，后续修改其属性值，会影响原来的对象里的对应的属性值。
+>
 
-   - 深克隆
-
+- 深克隆
+  
    ```java
    public class A implements Cloneable{
        private int a;
@@ -86,7 +87,7 @@
    
        @Override
        public Object clone() throws CloneNotSupportedException {
-         	//深克隆的关键在于将对象clone后，将对象中的引用类型(除了String)也clone一份赋值给新对象。
+       //深克隆的关键在于将对象clone后，将对象中的引用类型(除了String)也clone一份赋值给新对象。
            B b = (B) super.clone();
            A a = b.getA();
            b.setA((A) a.clone());

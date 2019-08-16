@@ -298,4 +298,9 @@ public class CollectionDemo {
 
 另外，其实除了ArrayList以外，会发现HashMap中也会有modCount属性，而在其相应的结构性操作方法内部，如put()、clear()等都会有对`modCount++`操作，而在HashMap内部也有一个内部迭代器HashIterator，内部会维护一个expectedModCount属性，其余的套路就都和ArrayList类似了。
 
-今天的技术分享就分享到这里，感谢您百忙抽出这么长时间阅读我的文章😊。
+--------
+
+- **今天的技术分享就分享到这里，感谢您百忙抽出这么长时间阅读我的文章😊。**
+- **另外，我的笔记还有文章也会在我的github上更新。**  
+  - 这边我会不定期更新一些读书笔记 [https://github.com/dujunchen/BackEndCore](https://github.com/dujunchen/BackEndCore)
+  - 这边我会不定期更新一些后端核心专题干货 [https://github.com/dujunchen/ReadingNotes](https://github.com/dujunchen/ReadingNotes)

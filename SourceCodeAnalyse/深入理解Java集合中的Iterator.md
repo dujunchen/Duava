@@ -158,7 +158,7 @@ protected transient int modCount = 0;
 
 ![sca-6](assets/sca-6.jpg)
 
-看到这里是不是有点感觉了？也就是正常情况下，ArrayList初始化后，内置的Itr也跟着初始化，并且expectedModCount和modCount是保持一致的。如果没有进行迭代操作，自然是不会出现不一致的问题，也就不会抛出ConcurrentModificationException。那我们的程序到时为什么会导致这两个值不一致呢？此时，不使用大招——debug我反正是无计可施了。因为我们的程序中使用了一个增强forEach循环，其实forEach可以看做是jdk一个语法糖，底层就是使用迭代器实现的。所以为了看清楚，我们在`java.util.ArrayList$Itr`的方法上都加上断点。如下图：
+看到这里是不是有点感觉了？也就是正常情况下，ArrayList初始化后，内置的Itr也跟着初始化，并且expectedModCount和modCount是保持一致的。如果没有进行迭代操作，自然是不会出现不一致的问题，也就不会抛出ConcurrentModificationException。那我们的程序到底为什么会导致这两个值不一致呢？此时，不使用大招——debug我反正是无计可施了。因为我们的程序中使用了一个增强forEach循环，其实forEach可以看做是jdk一个语法糖，底层就是使用迭代器实现的。所以为了看清楚，我们在`java.util.ArrayList$Itr`的方法上都加上断点。如下图：
 
 ![sca-7](assets/sca-7.jpg)
 

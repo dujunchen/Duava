@@ -185,12 +185,9 @@ public class Client2 {
     public static void main(String[] args) {
         Person landlord = new Landlord();
         Person proxy = (Person) Proxy.newProxyInstance(
-          							//系统默认类加载器，也就是应用类加载器
-          							ClassLoader.getSystemClassLoader(), 
-          							//抽象接口
-                        new Class[]{Person.class}, 
-          							//自定义调用处理器实现
-          							new RentHandler(landlord));
+          ClassLoader.getSystemClassLoader(), //抽象接口
+          new Class[]{Person.class}, //代理的接口
+          new RentHandler(landlord));//自定义调用处理器实现
         proxy.rent();
     }
 }
@@ -360,8 +357,7 @@ Map<Class<?>, Boolean> interfaceSet = new IdentityHashMap<>(interfaces.length);
 ```java
 private final static boolean saveGeneratedFiles =
         java.security.AccessController.doPrivileged(
-            new GetBooleanAction(
-                "sun.misc.ProxyGenerator.saveGeneratedFiles")).booleanValue();
+            new GetBooleanAction("sun.misc.ProxyGenerator.saveGeneratedFiles")).booleanValue();
 ```
 
 我简单说一下，`AccessController.doPrivileged`这个玩意会去调用`java.security.PrivilegedAction`的run()方法，GetBooleanAction这个玩意就实现了java.security.PrivilegedAction，在其run()中会通过`Boolean.getBoolean()`从系统属性中获取`sun.misc.ProxyGenerator.saveGeneratedFiles`的值，默认是false，如果想要将动态生成的class文件持久化，可以往系统属性中设置为true。
@@ -476,7 +472,7 @@ private byte[] generateClassFile() {
 ```java
 public class Client2 {
     public static void main(String[] args) {
-      	//加入该属性并设置为tru
+      	//加入该属性并设置为true
         System.setProperty("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
         Person landlord = new Landlord();
         Person proxy = (Person) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{Person.class}, new RentHandler(landlord));

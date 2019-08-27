@@ -207,7 +207,7 @@ public class Client2 {
 
 在上面实现的JDK动态代理代码中，核心的一行代码就是调用`Proxy.newProxyInstance()`，传入类加载器等参数，然后一顿神奇的操作后居然就直接返回了我们所需要的代理对象，因此我们就从这个神奇的方法开始说起......
 
-进入这个方法的源码中，以下是这个方法的核心代码，逻辑非常清楚，使用getProxyClass0获取一个Class对象，其实这个就是最终生成返回的代理代理类的Class对象，然后使用反射方式获取有参构造器，并传入我们的自定义InvocationHandler实例创建其对象。由此我们其实已经可以猜测，这个动态生成的代理类会有一个参数为InvocationHandler的构造器，这一点在之后会得到验证。
+进入这个方法的源码中，以下是这个方法的核心代码，逻辑非常清楚，使用`getProxyClass0`获取一个Class对象，其实这个就是最终生成返回的代理代理类的Class对象，然后使用反射方式获取有参构造器，并传入我们的自定义InvocationHandler实例创建其对象。由此我们其实已经可以猜测，这个动态生成的代理类会有一个参数为InvocationHandler的构造器，这一点在之后会得到验证。
 
 ```java
 public static Object newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h) throws IllegalArgumentException {
@@ -233,9 +233,9 @@ private static Class<?> getProxyClass0(ClassLoader loader, Class<?>... interface
 }
 ```
 
-最开始就是检验一下实现接口数量，然后执行proxyClassCache.get()。proxyClassCache是一个定义在Proxy中的字段，你就将其当做一个代理类的缓存。这个也好理解，稍后大家会看到，动态代理类生成过程中会伴随大量的IO操作，字节码操作还有反射操作，还是比较消耗资源的。如果需要创建的代理类数量特别多，性能会比较差。所以Proxy提供了缓存机制，将已经生成的代理类缓存，当获取时，会先从缓存获取，如果获取不到再执行生成逻辑。
+最开始就是检验一下实现接口数量，然后执行`proxyClassCache.get()`。proxyClassCache是一个定义在Proxy中的字段，你就将其当做一个代理类的缓存。这个也好理解，稍后大家会看到，动态代理类生成过程中会伴随大量的IO操作，字节码操作还有反射操作，还是比较消耗资源的。如果需要创建的代理类数量特别多，性能会比较差。所以Proxy提供了缓存机制，将已经生成的代理类缓存，当获取时，会先从缓存获取，如果获取不到再执行生成逻辑。
 
-我们继续进入proxyClassCache.get()。这个方法看起来比较费劲，因为我使用的是JDK8，这边用到了大量的Java8新增的函数式编程的语法和内容，因为这边不是专门讲Java8的，所以我就不展开函数式编程的内容了。以后有机会在其它专题详述。另外，这边会有很多对缓存的操作，这个不是我们的重点，所以也全部跳过，我们挑重点看，关注一下下面这部分代码：
+我们继续进入`proxyClassCache.get()`。这个方法看起来比较费劲，因为我使用的是JDK8，这边用到了大量的Java8新增的函数式编程的语法和内容，因为这边不是专门讲Java8的，所以我就不展开函数式编程的内容了。以后有机会在其它专题详述。另外，这边会有很多对缓存的操作，这个不是我们的重点，所以也全部跳过，我们挑重点看，关注一下下面这部分代码：
 
 ```java
 public V get(K key, P parameter){
@@ -267,7 +267,7 @@ public V get(K key, P parameter){
 }
 ```
 
-这个代码非常有意思，是一个死循环。或许你和我一样，完全看不懂这代码是啥意思，没关系，可以仔细观察一下这代码你就会发现柳暗花明。这个方法最后会需要返回一个从缓存或者新创建的代理类，而这整个死循环只有一个出口，没错就是带★这一行，而value是通过supplier.get()获得，Supplier是一个函数式接口，代表了一种数据的获取操作。我们再观察会发现，supplier是通过factory赋值而来的。而factory是通过▲行创建出来的。WeakCache.Factory恰好是Supplier的实现。所以我们进入WeakCache.Factory的get()，核心代码如下，经观察可以发现，返回的数据最终是通过valueFactory.apply()返回的。
+这个代码非常有意思，是一个死循环。或许你和我一样，完全看不懂这代码是啥意思，没关系，可以仔细观察一下这代码你就会发现柳暗花明。这个方法最后会需要返回一个从缓存或者新创建的代理类，而这整个死循环只有一个出口，没错就是带★这一行，而value是通过`supplier.get()`获得，Supplier是一个函数式接口，代表了一种数据的获取操作。我们再观察会发现，supplier是通过factory赋值而来的。而factory是通过▲行创建出来的。`WeakCache.Factory`恰好是Supplier的实现。所以我们进入`WeakCache.Factory`的get()，核心代码如下，经观察可以发现，返回的数据最终是通过valueFactory.apply()返回的。
 
 ```java
 public synchronized V get() {
@@ -341,7 +341,7 @@ Map<Class<?>, Boolean> interfaceSet = new IdentityHashMap<>(interfaces.length);
     }
 ```
 
-通过上面代码不难发现，生成代理类的核心代码在★这一行，会使用一个ProxyGenerator生成代理类（以byte[]形式存在）。然后将生成得到的字节数组转换为一个Class对象。进入ProxyGenerator.generateProxyClass()。ProxyGenerator处于sun.misc包，不是开源的包，因为我这边使用的是openjdk，所以可以直接查看其源码，如果使用的是oracle jdk的话，这边只能通过反编译class文件查看。
+通过上面代码不难发现，生成代理类的核心代码在★这一行，会使用一个ProxyGenerator生成代理类（以byte[]形式存在）。然后将生成得到的字节数组转换为一个Class对象。进入`ProxyGenerator.generateProxyClass()`。ProxyGenerator处于`sun.misc`包，不是开源的包，因为我这边使用的是openjdk，所以可以直接查看其源码，如果使用的是oracle jdk的话，这边只能通过反编译class文件查看。
 
 ```java
  public static byte[] generateProxyClass(final String name, Class<?>[] interfaces, int accessFlags) {
@@ -355,7 +355,7 @@ Map<Class<?>, Boolean> interfaceSet = new IdentityHashMap<>(interfaces.length);
  }
 ```
 
-上述逻辑很简单，就是使用一个生成器调用generateClassFile()方法返回代理类，后面有个if判断我简单提一下，这个作用主要是将内存中动态生成的代理类以class文件形式保存到硬盘。saveGeneratedFiles这个字段是定义在ProxyGenerator中的字段，
+上述逻辑很简单，就是使用一个生成器调用`generateClassFile()`方法返回代理类，后面有个if判断我简单提一下，这个作用主要是将内存中动态生成的代理类以class文件形式保存到硬盘。saveGeneratedFiles这个字段是定义在ProxyGenerator中的字段，
 
 ```java
 private final static boolean saveGeneratedFiles =
@@ -364,9 +364,9 @@ private final static boolean saveGeneratedFiles =
                 "sun.misc.ProxyGenerator.saveGeneratedFiles")).booleanValue();
 ```
 
-我简单说一下，AccessController.doPrivileged这个玩意会去调用java.security.PrivilegedAction的run()方法，GetBooleanAction这个玩意就实现了java.security.PrivilegedAction，在其run()中会通过Boolean.getBoolean()从系统属性中获取`sun.misc.ProxyGenerator.saveGeneratedFiles`的值，默认是false，如果想要将动态生成的class文件持久化，可以往系统属性中设置为true。
+我简单说一下，`AccessController.doPrivileged`这个玩意会去调用`java.security.PrivilegedAction`的run()方法，GetBooleanAction这个玩意就实现了java.security.PrivilegedAction，在其run()中会通过`Boolean.getBoolean()`从系统属性中获取`sun.misc.ProxyGenerator.saveGeneratedFiles`的值，默认是false，如果想要将动态生成的class文件持久化，可以往系统属性中设置为true。
 
-我们重点进入ProxyGenerator.generateClassFile()方法，代码如下：
+我们重点进入`ProxyGenerator.generateClassFile()`方法，代码如下：
 
 ```java
 private byte[] generateClassFile() {
@@ -471,7 +471,7 @@ private byte[] generateClassFile() {
 
 其它的表结构method_info,attribute_info也都是类似，都会有自己特有的一套结构规范。
 
-好了，简单了解一下Class文件结构后，现在再回到我们的主题来，我们再来研究ProxyGenerator.generateClassFile()方法内容就好理解了。其实这个方法就做了一件事情，就是根据我们传入的这些个信息，再按照Java虚拟机规范的字节码结构，用IO流的方式写入到一个字节数组中，这个字节数组就是代理类的Class文件。默认情况这个Class文件直接存在内存中，为了更加深入理解动态代理原理，该是时候去看看这个文件到底是啥结构了。怎么看？还记得前面提到过的`sun.misc.ProxyGenerator.saveGeneratedFiles`吗？只要我们往系统属性中加入该参数并将其值设为true，就会自动将该方法生成的byte[]形式的Class文件保存到硬盘上，如下代码：
+好了，简单了解一下Class文件结构后，现在再回到我们的主题来，我们再来研究`ProxyGenerator.generateClassFile()`方法内容就好理解了。其实这个方法就做了一件事情，就是根据我们传入的这些个信息，再按照Java虚拟机规范的字节码结构，用IO流的方式写入到一个字节数组中，这个字节数组就是代理类的Class文件。默认情况这个Class文件直接存在内存中，为了更加深入理解动态代理原理，该是时候去看看这个文件到底是啥结构了。怎么看？还记得前面提到过的`sun.misc.ProxyGenerator.saveGeneratedFiles`吗？只要我们往系统属性中加入该参数并将其值设为true，就会自动将该方法生成的byte[]形式的Class文件保存到硬盘上，如下代码：
 
 ```java
 public class Client2 {
@@ -485,7 +485,7 @@ public class Client2 {
 }
 ```
 
-再次运行，神奇的一幕发生了，工程中多了一个类，没错，这就是JDK动态代理生成的代理类，因为我们的接口是public修饰，所以采用默认包名com.sun.proxy，类名以$Proxy开头，后面跟一个数字，和预期完全吻合。完美！🤩
+再次运行，神奇的一幕发生了，工程中多了一个类，没错，这就是JDK动态代理生成的代理类，因为我们的接口是public修饰，所以采用默认包名`com.sun.proxy`，类名以$Proxy开头，后面跟一个数字，和预期完全吻合。完美！🤩
 
 ![proxy-5](assets/proxy-5.jpg)
 
@@ -531,9 +531,9 @@ public final class $Proxy0 extends Proxy implements Person { ★
 
 👉**有几个关注点**
 
-- 标注①的是一个静态代码块，当代理类一被加载，会立刻初始化，用反射方式获取得到被代理的接口中方法和Object中equals,toString,hashCode方法的Method对象,并将其保存在属性中，为后续请求分派做准备。
+- 标注①的是一个静态代码块，当代理类一被加载，会立刻初始化，用反射方式获取得到被代理的接口中方法和Object中equals(),toString(),hashCode()方法的Method对象,并将其保存在属性中，为后续请求分派做准备。
 - 标注②的是带有一个带有InvocationHandler类型参数的构造器，这个也验证了我们之前的猜测，没错，代理类会通过构造器接收一个InvocationHandler实例，再观察标记★的地方，代理类继承了Proxy类，其实代理类会通过调用父类构造器将其保存在Proxy的属性h中，自然会继承给当前这个代理类，这个InvocationHandler实例为后续请求分派做准备。同时由此我们也可以得出结论，Proxy是所有的代理类的父类。另外再延伸，因为Java是一门单继承语言，所以意味着代理类不可能再通过继承其他类的方式来扩展。所以，JDK动态代理没法对不实现任何接口的类进行代理，原因就在于此。这或许也是动态代理模式不多的缺点之一。如果需要继承形式的类代理，可以使用CGLIB等类库。
-- 标注③的是我们指定接口Person中的方法，标注④的是代理类继承自Object类中的equals,toString,hashCode方法。再观察这些方法内部实现，所有的方法请求全部委托给之前由构造器传入的InvocationHandler实例的invoke()方法处理，将当前的代理类实例，各方法的Method对象和方法参数传入，最后返回执行结果。由此得出结论，动态代理过程中，所指定接口的方法以及Object中equals,toString,hashCode方法会被代理，而Object其他方法则并不会被代理，而且所有的方法请求全部都是委托给我们自己写的自定义InvocationHandler的invoke()方法统一处理，哇塞，O了，这样的处理实在太优雅了！
+- 标注③的是我们指定接口Person中的方法，标注④的是代理类继承自Object类中的equals(),toString(),hashCode()方法。再观察这些方法内部实现，所有的方法请求全部委托给之前由构造器传入的InvocationHandler实例的invoke()方法处理，将当前的代理类实例，各方法的Method对象和方法参数传入，最后返回执行结果。由此得出结论，动态代理过程中，所指定接口的方法以及Object中equals(),toString(),hashCode()方法会被代理，而Object其他方法则并不会被代理，而且所有的方法请求全部都是委托给我们自己写的自定义InvocationHandler的invoke()方法统一处理，哇塞，O了，这样的处理实在太优雅了！
 
 ## 动态代理到底有什么卵用
 
@@ -598,9 +598,9 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
 
 👉观察上面代码，可以得出以下几点结论：
 
-- ConnectionLogger实现了InvocationHandler，通过构造器传入真实Connection对象，这是一个真实对象，并将其保存在属性，后续请求会委托给它执行。其静态方法newInstance()内部就是通过Proxy.newProxyInstance()并传入类加载器等一系列参数返回一个Connection的代理对象给前端。该方法最终会在DEBUG日志级别下被org.apache.ibatis.executor.BaseExecutor.getConnection()方法调用返回一个Connection代理对象。
+- ConnectionLogger实现了InvocationHandler，通过构造器传入真实Connection对象，这是一个真实对象，并将其保存在属性，后续请求会委托给它执行。其静态方法newInstance()内部就是通过`Proxy.newProxyInstance()`并传入类加载器等一系列参数返回一个Connection的代理对象给前端。该方法最终会在DEBUG日志级别下被`org.apache.ibatis.executor.BaseExecutor.getConnection()`方法调用返回一个Connection代理对象。
 
-- 前面说过，JDK动态代理会将客户端所有的请求全部派发给InvocationHandler的invoke()方法，即上面ConnectionLogger中的invoke()方法。invoke()方法当中，不难发现，Mybatis对于Object中定义的方法，统一不做代理处理，直接调用返回。对于prepareStatement，prepareCall，createStatement这三个核心方法会统一委托给真实的Connection对象处理，并且在执行之前会以DEBUG方式打印日志信息。除了这三个方法，Connection其它方法也会被真实的Connection对象代理，但是并不会打印日志信息。我们以prepareStatement方法为例，当真实的Connection对象调用prepareStatement方法会返回PreparedStatement对象，这又是一个真实对象，但是Mybatis并不会将该真实对象直接返回，而且通过调用PreparedStatementLogger.newInstance()再次包装代理，看到这个方法名字，我相信聪明的您都能猜到这个方法的逻辑了。没错，PreparedStatementLogger类的套路和ConnectionLogger如出一辙。这边我再贴回PreparedStatementLogger的代码，
+- 前面说过，JDK动态代理会将客户端所有的请求全部派发给InvocationHandler的invoke()方法，即上面ConnectionLogger中的invoke()方法。invoke()方法当中，不难发现，Mybatis对于Object中定义的方法，统一不做代理处理，直接调用返回。对于prepareStatement()，prepareCall()，createStatement()这三个核心方法会统一委托给真实的Connection对象处理，并且在执行之前会以DEBUG方式打印日志信息。除了这三个方法，Connection其它方法也会被真实的Connection对象代理，但是并不会打印日志信息。我们以prepareStatement()方法为例，当真实的Connection对象调用prepareStatement()方法会返回PreparedStatement对象，这又是一个真实对象，但是Mybatis并不会将该真实对象直接返回，而且通过调用`PreparedStatementLogger.newInstance()`再次包装代理，看到这个方法名字，我相信聪明的您都能猜到这个方法的逻辑了。没错，PreparedStatementLogger类的套路和ConnectionLogger如出一辙。这边我再贴回PreparedStatementLogger的代码，
 
   ```java
   public final class PreparedStatementLogger extends BaseJdbcLogger implements InvocationHandler {
@@ -657,11 +657,11 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
   }
   ```
 
-  这个代码的逻辑我就不讲了，思路几乎和ConnectionLogger完全一致。无非是拦截的方法不同，因为这次被代理对象是PreparedStatement，所以这次会去拦截都是PreparedStatement的方法，比如setXXX()系列,executeXX()系列等方法。然后在指定方法执行前后添加需要的DEBUG日志信息，perfect！以getResultSet方法为例，PreparedStatement对象调用getResultSet()后，会返回真实的ResultSet对象，但是一样的套路，并不会直接将该真实对象返回，而是由调用ResultSetLogger.newInstance()再次将该ResultSet对象包装，ResultSetLogger的代码相信聪明的您不需要我再花篇幅讲了。
+  这个代码的逻辑我就不讲了，思路几乎和ConnectionLogger完全一致。无非是拦截的方法不同，因为这次被代理对象是PreparedStatement，所以这次会去拦截都是PreparedStatement的方法，比如setXXX()系列,executeXX()系列等方法。然后在指定方法执行前后添加需要的DEBUG日志信息，perfect！以getResultSet方法为例，PreparedStatement对象调用getResultSet()后，会返回真实的ResultSet对象，但是一样的套路，并不会直接将该真实对象返回，而是由调用`ResultSetLogger.newInstance()`再次将该ResultSet对象包装，ResultSetLogger的代码相信聪明的您不需要我再花篇幅讲了。
 
 ## 结束
 
-好了，关于JDK动态代理的核心原理部分到这里算全部讲解完毕了，其实我们聊了这么多，都是围绕着java.lang.reflect.Proxy.newProxyInstance()这个方法展开的。其实在Proxy类中，还有一个getProxyClass()方法，这个只需要传入加载代理类的类加载器和指定接口就可以动态生成其代理类，我一开始说到静态代理弊病的时候说过，静态代理创建代理时，真实角色必须要存在，否则这个模式没法进行下去，但是JDK动态代理可以做到在真实角色不存在的情况下就返回该接口的代理类。至于Proxy其它的方法都比较简单了，此处不再赘述。
+好了，关于JDK动态代理的核心原理部分到这里算全部讲解完毕了，其实我们聊了这么多，都是围绕着`java.lang.reflect.Proxy.newProxyInstance()`这个方法展开的。其实在Proxy类中，还有一个getProxyClass()方法，这个只需要传入加载代理类的类加载器和指定接口就可以动态生成其代理类，我一开始说到静态代理弊病的时候说过，静态代理创建代理时，真实角色必须要存在，否则这个模式没法进行下去，但是JDK动态代理可以做到在真实角色不存在的情况下就返回该接口的代理类。至于Proxy其它的方法都比较简单了，此处不再赘述。
 
 今天和大家一起探索JDK动态代理模式原理的技术之旅到此结束，希望这篇文章可以给大家带来学习或者工作上的帮助，也不枉我一个字一个字的手敲了这么多字......🥺以后相信大家对莫测高深的动态代理模式也不会再谈“动态代理”色变了。接下去，我会继续抽出空闲时间给大家分享自己学习工作过程踩过的坑，思考过的成果，分享他人同时也对自己的知识掌握输出整理，也希望大家可以继续关注我，咱们下次不见不散。😋
 

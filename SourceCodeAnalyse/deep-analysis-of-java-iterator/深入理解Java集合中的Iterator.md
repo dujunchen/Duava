@@ -301,6 +301,5 @@ public class CollectionDemo {
 --------
 
 - **今天的技术分享就分享到这里，感谢您百忙抽出这么长时间阅读我的文章😊。**
-- **另外，我的笔记还有文章也会在我的github上更新。**  
-  - 这边我会不定期更新一些后端核心专题干货[https://github.com/dujunchen/BackEndCore](https://github.com/dujunchen/BackEndCore)
-  - 这边我会不定期更新一些读书笔记  [https://github.com/dujunchen/ReadingNotes](https://github.com/dujunchen/ReadingNotes)
+- **另外，我的笔记还有文章也会在我的掘金社区专题上更新。**  
+我的掘金主页：[https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts](https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts)

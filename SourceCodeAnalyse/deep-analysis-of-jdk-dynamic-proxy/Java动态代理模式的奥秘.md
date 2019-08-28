@@ -663,5 +663,9 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
 
 
 
+--------
 
+- **今天的技术分享就分享到这里，感谢您百忙抽出这么长时间阅读我的文章😊。**
+- **另外，我的笔记还有文章也会在我的掘金社区专题上更新。**  
+我的掘金主页：[https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts](https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts)
 

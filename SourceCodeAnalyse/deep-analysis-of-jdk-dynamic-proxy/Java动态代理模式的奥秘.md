@@ -185,7 +185,7 @@ public class Client2 {
     public static void main(String[] args) {
         Person landlord = new Landlord();
         Person proxy = (Person) Proxy.newProxyInstance(
-          ClassLoader.getSystemClassLoader(), //抽象接口
+          ClassLoader.getSystemClassLoader(), //默认类加载器
           new Class[]{Person.class}, //代理的接口
           new RentHandler(landlord));//自定义调用处理器实现
         proxy.rent();

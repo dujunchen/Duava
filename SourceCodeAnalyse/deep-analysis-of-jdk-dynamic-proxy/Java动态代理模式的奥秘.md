@@ -654,6 +654,8 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
   ```
 
   这个代码的逻辑我就不讲了，思路几乎和ConnectionLogger完全一致。无非是拦截的方法不同，因为这次被代理对象是PreparedStatement，所以这次会去拦截都是PreparedStatement的方法，比如setXXX()系列,executeXX()系列等方法。然后在指定方法执行前后添加需要的DEBUG日志信息，perfect！以getResultSet方法为例，PreparedStatement对象调用getResultSet()后，会返回真实的ResultSet对象，但是一样的套路，并不会直接将该真实对象返回，而是由调用`ResultSetLogger.newInstance()`再次将该ResultSet对象包装，ResultSetLogger的代码相信聪明的您不需要我再花篇幅讲了。
+  
+  这个时候，再回过头思考一下，这个场景下，如果是采用静态代理是不是根本没法完成了？因为，每一个数据库连接都会产生一个新的Connection对象，而每一个Connection对象每次调用preparedStatement()方法都会产生一个新的PreparedStatement对象，而每一个PreparedStatement对象每次调用getResultSet()又都会产生一个新的ResultSet对象，跟上面的多个房东出租房子一个道理，就会产生不计其数处理逻辑极其相似的代理类，所以，这才是开源框架底层不采用静态代理的本质原因！一切都豁然开朗了！😍
 
 ## 结束
 

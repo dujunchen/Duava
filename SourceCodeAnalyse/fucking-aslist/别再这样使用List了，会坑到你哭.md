@@ -39,7 +39,7 @@ System.out.println(ls);
 
 其实这个问题相当的简单，如果这个时候能再往里深入点一下，就知道其中的坑爹之处，其实此ArrayList
 
-非彼ArrayList......这里面的这个ArrayList类只是Arrays类中的一个私有静态内部类。这个类确实继承了AbstractList类，但是并没有去实现其add()方法，所以会直接抛出UnsupportedOperationException。其实这个问题相当简单，不过既然被这个类坑了，索性我们就再全面了解一下这个类的内容吧。
+非彼ArrayList......尼玛，这里面的这个ArrayList类只是Arrays类中的一个私有静态内部类。这个类确实继承了AbstractList类，但是并没有去实现其add()方法，所以会直接抛出UnsupportedOperationException。其实这个问题相当简单，不过既然被这个类坑了，索性我们就再全面了解一下这个类的内容吧。
 
 ![al-4](assets/al-4.jpg)
 

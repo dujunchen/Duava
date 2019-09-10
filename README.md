@@ -18,6 +18,6 @@
 - **JDK的一些源码**
   - **[深入理解Java集合中的Iterator](SourceCodeAnalyse/deep-analysis-of-java-iterator/深入理解Java集合中的Iterator.md)**
   
-- **[Java动态代理模式的奥秘](SourceCodeAnalyse/deep-analysis-of-jdk-dynamic-proxy/Java动态代理模式的奥秘.md)**
+  - **[Java动态代理模式的奥秘](SourceCodeAnalyse/deep-analysis-of-jdk-dynamic-proxy/Java动态代理模式的奥秘.md)**
   
-- **[别再这样使用List了，会坑到你哭](SourceCodeAnalyse/fucking-aslist/别再这样使用List了，会坑到你哭.md)**
+  - **[别再这样使用List了，会坑到你哭](SourceCodeAnalyse/fucking-aslist/别再这样使用List了，会坑到你哭.md)**

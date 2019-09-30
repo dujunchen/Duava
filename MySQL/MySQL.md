@@ -78,10 +78,10 @@
 - 查看当前存储引擎的命令
 
   ```sql
-show engines;
+  show engines;  
   show variables like '%storage_engine%';
   ```
-
+  
 ## Join
 
 - SQL执行顺序

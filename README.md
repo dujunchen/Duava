@@ -24,11 +24,11 @@
 
 ## MySQL
 
-- [MySQL学习笔记](MySQL/MySQL学习笔记.md)
+- [**MySQL学习笔记**](MySQL/MySQL学习笔记.md)
 
 ## Spring
 
-- [深入理解Spring IOC](Spring/spring-ioc.md)
-- [深入理解Spring AOP](Spring/spring-aop.md)
-- [深入理解Spring事务管理](Spring/spring-tx.md)
-- [深入理解Spring MVC](Spring/spring-mvc.md)
+- [**深入理解Spring IOC**](Spring/spring-ioc.md)
+- [**深入理解Spring AOP**](Spring/spring-aop.md)
+- **[深入理解Spring事务管理](Spring/spring-tx.md)**
+- **[深入理解Spring MVC](Spring/spring-mvc.md)**

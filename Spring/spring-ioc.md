@@ -132,7 +132,7 @@
 
   如果在classpath下找到多个指定资源，classpath*:会返回多个。
 
-###ApplicationContext和ResourceLoader
+### ApplicationContext和ResourceLoader
 
 ![ioc-7](assets/ioc/ioc-7.jpg)
 

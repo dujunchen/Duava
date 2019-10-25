@@ -34,3 +34,7 @@
 ## 五、Redis
 
 - [**《Redis设计与实现》读书笔记**](Redis/Redis设计与实现/contents.md)
+
+## 六 Java并发
+
+- [**Java并发学习笔记**](Concurrent/java-concurrent.md)

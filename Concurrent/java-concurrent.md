@@ -1,6 +1,6 @@
 # Java Concurrent
 
-## 挑战
+# 挑战
 
 ### 上下文切换
 
@@ -43,7 +43,9 @@
 
 #### 锁升级
 
-偏向锁、轻量级锁、重量级锁
+偏向锁、轻量级锁(可以理解为自旋锁)、重量级锁
+
+大多数情况下锁不仅不存在多线程竞争，而且总是由同一线程多次获得，为了让线程获得锁的代价更低而引入了偏向锁，用于一个线程访问同步代码块的场景。但是如果存在多个线程争抢锁，就会升级成为轻量级锁，采用CAS自旋方式获取锁，不会发生阻塞，用于竞争不是很激烈或同步代码块执行很快的场景。但是如果锁竞争很激烈导致CAS一直获取不到锁，自旋一定次数（默认10次）后，会升级成为重量级锁。
 
 ##### 比较
 
@@ -261,7 +263,7 @@ final boolean nonfairTryAcquire(int acquires) {
 
 
 释放锁的逻辑在tryRelease()方法中。
-```
+```java
 protected final boolean tryRelease(int releases) {
             int c = getState() - releases;
             if (Thread.currentThread() != getExclusiveOwnerThread())
@@ -561,4 +563,4 @@ public ScheduledThreadPoolExecutor(int corePoolSize) {
 
 #### Future和FutureTask
 
-#### Executors 
+# Executors 

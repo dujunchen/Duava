@@ -14,7 +14,7 @@
 
 ## Spring MVC处理请求核心流程
 
-![mvc-3](assets/mvc/mvc-3.jpg)
+![mvc-3](assets/mvc/mvc3.jpg)
 
 - DispatcherServlet本质上是一个Servlet，继承了GenericServlet，在外部Servlet容器启动时会调用init()，该方法被HttpServletBean重写，并且会调用initServletBean()，该方法又会被FrameworkServlet重写，通过调用initWebApplicationContext()实现Web环境初始化，该方法中主要是会通过onRefresh(wac)实现SpringMVC九大组件的初始化工作，详细创建流程见DispatcherServlet#initStrategies()
 - DispatcherServlet核心逻辑都在doService()方法中，该方法会被父类FrameworkServlet.doXX()系列方法调用。doService()的核心分发逻辑在doDispatch()方法中

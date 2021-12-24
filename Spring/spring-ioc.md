@@ -2,7 +2,7 @@
 
 ## Spring架构
 
-![ioc-1](assets/ioc/ioc-1.png)
+![ioc-1](assets/ioc/ioc1.png)
 
 ## IOC理念
 

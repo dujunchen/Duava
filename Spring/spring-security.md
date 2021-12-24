@@ -66,7 +66,7 @@
   }
   ```
 
-### UsernamePasswordAuthenticationFilter
+
 
 ### AuthenticationManager
 
@@ -91,3 +91,10 @@
 
 - 方法授权起点在于GlobalMethodSecurityConfiguration，这个配置类中会创建方法授权的核心MethodInterceptor，具体实现根据代理模式不同创建为AspectJMethodSecurityInterceptor或者MethodSecurityInterceptor。以MethodSecurityInterceptor为例，创建的时候会设置默认的AccessDecisionManager（默认类型为AffirmativeBased），注入MethodSecurityMetadataSource，MethodSecurityMetadataSource是根据@EnableGlobalMethodSecurity注解上的属性配置创建对应的MethodSecurityMetadataSource实现类。拦截的核心逻辑在AbstractSecurityInterceptor的beforeInvocation()中，主要是通过AOP技术拦截指定方法，并获取Collection\<ConfigAttribute\>，然后委托给AccessDecisionManager进行授权决策。
 
+## 常用的Filter
+
+### UsernamePasswordAuthenticationFilter
+
+### ExceptionTranslationFilter
+
+- 先通过获取异常堆栈中所有异常的cause，并在其中查找AuthenticationException和AccessDeniedException，这一步主要是为了防止这两个异常被包装后导致无法catch到，其中AuthenticationException是认证阶段的异常，AccessDeniedException是授权阶段的异常。主要异常处理逻辑在handleSpringSecurityException()，用来处理AuthenticationException和AccessDeniedException。如果是AuthenticationException，则会直接将其委托给AuthenticationEntryPoint的commence()处理。如果是AccessDeniedException，判断是否是Anonymous或者RememberMe，是则直接将其委托给AuthenticationEntryPoint的commence()处理，否则会委托给AccessDeniedHandler处理。

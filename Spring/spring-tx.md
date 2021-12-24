@@ -2,9 +2,41 @@
 
 ## ACID
 
+- 原子性
+- 一致性
+- 隔离性
+- 持久性
+
 ## 事务隔离级别
 
+### 目的
+
+- 事务隔离级别主要解决事务并发问题
+
+### 并发事务问题
+
+#### 脏读
+
+- 一个事务中读到了另一个事务未提交的数据
+
+#### 不可重复读
+
+- 针对update操作，一个事务中读到了另一个事务已提交的update操作的数据记录（同一个事务中前后两次读取数据内容发生了改变）
+
+#### 幻读
+
+- 针对insert或者delete操作，一个事务中读到了另一个事务已提交的insert或者delete操作的数据记录（同一个事务中前后两次读取数据行数发生了改变）
+
+### 分类
+
+- 串行化
+- 可重复读
+- 读已提交
+- 读未提交
+
 ## 事务传播行为
+
+
 
 ## Java事务管理
 
@@ -94,19 +126,20 @@ AbstractPlatformTransactionManager是所有PlatformTransactionManager实现类�
 
 ### 声明式事务
 
-- 原因
-  - 解决了编程式事务中，事务管理代码和业务逻辑代码相互混杂的问题。
+#### 原因
 
-- 实现方式
-  - ProxyFactoryBean+TransactionInterceptor
-    - TransactionInterceptor实现了MethodInterceptor，采用Spring AOP Around Advice方式为业务方法切入事务管理的逻辑。
-    - TransactionInterceptor需要传入一个PlatformTransactionManager和一个TransactionAttribute，其中PlatformTransactionManager用于界定事务边界，TransactionAttribute用于定义事务所需要的信息，可以以Properties或者TransactionAttributeSource提供。
-  - TransactionProxyFactoryBean
-    - 集成了ProxyFactoryBean和TransactionInterceptor
-  - BeanNameAutoProxyCreator自动代理
-    - 利用Spring AOP的自动代理BeanNameAutoProxyCreator，根据提供的TransactionInterceptor里面的信息，自动为传入的beanNames创建其代理对象，并切入事务管理的逻辑，从而实现事务管理的功能。
-  - @Transactional
-    - 原理
-      - 通过反射读取@Transactional的内容并生成AnnotationTransactionAttributeSource对象，根据这些信息提供事务支持。见SpringTransactionAnnotationParser.parseTransactionAnnotation()。
-    - @Transactional可以加类级别上，所有方法都会继承其元数据信息。也可以加方法上。
-    - 不要将@Transactional加到业务接口上，而是要加到具体实现类或者方法上，因为SpringAOP如果采用CGLIB方式代理，业务接口上注解的信息无法读取。
+- 解决了编程式事务中，事务管理代码和业务逻辑代码相互混杂的问题。
+
+#### 实现方式
+
+##### @EnableTransactionManagement 和@Transactional
+
+- @EnableTransactionManagement会通过TransactionManagementConfigurationSelector向IOC中注入AutoProxyRegistrar和ProxyTransactionManagementConfiguration组件，其中，AutoProxyRegistrar主要是用来根据@Enable*注解中mode和proxyTargetClass属性，向当前的BeanDefinitionRegistry注册一个自动代理创建者。ProxyTransactionManagementConfiguration是一个配置类，会向容器中注入支持声明式事务的基础组件BeanFactoryTransactionAttributeSourceAdvisor，这是一个Aspect，使用Spring AOP来实现声明式事务。其中AnnotationTransactionAttributeSource是用来维护关于事务的基础配置，里面会使用SpringTransactionAnnotationParser来解析@Transactional，而TransactionInterceptor#invoke()是代理真正的拦截逻辑，实现了事务横切逻辑
+
+##### ProxyFactoryBean+TransactionInterceptor
+
+- TransactionInterceptor实现了MethodInterceptor，采用Spring AOP Around Advice方式为业务方法切入事务管理的逻辑，具体逻辑在TransactionInterceptor#invoke()中
+
+##### TransactionProxyFactoryBean
+
+- 集成了ProxyFactoryBean和TransactionInterceptor

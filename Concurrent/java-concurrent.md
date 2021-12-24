@@ -1,6 +1,21 @@
 # Java Concurrent
 
-# 挑战
+## 并发和并行
+
+- 并发：同一时间处理不同事情的能力
+
+<img src="assets/image-20210819002328145.png" alt="image-20210819002328145" style="zoom:50%;" />
+
+- 并行：同时能做多少事情
+
+<img src="assets/image-20210819002212548.png" alt="image-20210819002212548" style="zoom:50%;" />
+
+## 多线程应用
+
+- 异步
+- 提高性能
+
+## 挑战
 
 ### 上下文切换
 
@@ -474,7 +489,7 @@ while (task != null || (task = getTask()) != null) {
 - corePoolSize（核心线程数）
 当Worker线程数\<corePoolSize时，会通过创建Worker线程执行任务，到达corePoolSize后就不会再创建。可以使用ThreadPoolExecutor的prestartAllCoreThreads()方法提前创建并启动所有的核心线程。
 - runnableTaskQueue（阻塞队列）
-可以选用
+  可以选用
 	- ArrayBlockingQueue
     - LinkedBlockingQueue
     - SynchronousQueue
@@ -484,7 +499,7 @@ while (task != null || (task = getTask()) != null) {
 - ThreadFactory
 设置创建的线程。
 - RejectedExecutionHandler（拒绝策略）
-任务队列和线程池都满了采取具体的拒绝策略拒绝任务。
+  任务队列和线程池都满了采取具体的拒绝策略拒绝任务。
 	- AbortPolicy（默认）
     抛出异常。
     - CallerRunsPolicy
@@ -563,4 +578,4 @@ public ScheduledThreadPoolExecutor(int corePoolSize) {
 
 #### Future和FutureTask
 
-# Executors 
+## Executors

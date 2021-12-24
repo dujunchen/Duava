@@ -2,6 +2,8 @@
 
 ## AOP
 
+### 分类
+
 - 静态AOP
 
   典型代表AspectJ，特点是采用特定的编译器ajc将Aspect以字节码形式织入系统各个功能模块，以达到融合Class和Aspect目的。优点是直接使用编译后的静态类执行，性能很好。缺点是灵活性不够，需求改变后需要修改Aspect定义文件并重新编译。
@@ -9,6 +11,14 @@
 - 动态AOP
 
   大都采用Java语言实现，通过Java的动态特性实现。典型代表Spring AOP。AOP各种概念都是Java类体现，容易开发集成。与静态AOP最大的区别是，AOP织入过程是在系统运行开始后进行，而不是预先编译到系统类中，方便做修改调整。优点是灵活性和易用性比较好，缺点是会有一定的性能损失。
+
+### 理念
+
+<img src="assets/image-20211216171205852.png" alt="image-20211216171205852" style="zoom:80%;" />
+
+- 横切逻辑是指多个代码执行流程中出现的相同的子流程代码。横切逻辑分散在代码的各个角落，并且存在大量重复代码，横切逻辑和业务逻辑混杂在一起等问题
+- AOP的出现主要是为了解决OOP下对横切逻辑代码处理刺手的问题。AOP可以在不改变原有业务逻辑情况下，增强横切逻辑代码，根本上解耦合，避免横切逻辑代码重复
+- 主要用于权限校验代码、日志代 码、事务控制代码、性能监控代码
 
 ## Java平台实现AOP
 
@@ -21,7 +31,7 @@
 
 - Joinpoint
 
-  系统中将要进行织入操作的系统执行点。
+  系统中可以进行横切逻辑织入操作的特殊执行点
 
 - Pointcut
 
@@ -53,27 +63,25 @@
 
   - Around
 
-    Servlet中的Filter采用这种思想。
-
-  - Introduction
-
-    可以为原有对象添加新特性或者新行为。
+    - 可以实现上面所有其他类型的Advice，不要和其他类型的Advice混合使用
 
 - Aspect
 
+  - Aspect=切入点+方位点（前或者后，正常或者异常）+横切逻辑
+
 - 织入器
 
-  完成横切关注点逻辑到系统的织入。
+  - 完成横切关注点逻辑到系统的织入。
 
 - 目标对象
 
-![aop-1](assets/aop/aop-1.jpg)
+- 代理对象
 
 ## Spring AOP
 
 ### 实现机制
 
-采用动态代理和字节码生成技术实现。
+- Spring 实现AOP思想使用的是动态代理技术。默认情况下，Spring会根据被代理对象是否实现接口来选择使用JDK还是CGLIB。当被代理对象没有实现 任何接口时，Spring会选择CGLIB。当被代理对象实现了接口，Spring会选择JDK官方的代理技术，不过 我们可以通过配置的方式，让Spring强制使用CGLIB
 
 ### Pointcut
 
@@ -135,7 +143,7 @@ ProxyFactory通过AdvisedSupport设置生成代理对象的信息，通过AopPro
 
 - 原理
 
-  Spring AOP自动代理建立在IOC的BeanPostProcessor。提供一个BeanPostProcessor，当对象实例化时自动创建代理对象并返回，而不是目标对象本身。
+  Spring AOP自动代理建立在IOC的BeanPostProcessor后置处理器实现的。Spring内置了一个AbstractAutoProxyCreator类型的BeanPostProcessor，当对象实例化后需要后置处理时，会判断是否需要AOP增强，如果需要会自动使用动态代理技术创建代理对象并返回，而不是目标对象本身。具体代码逻辑在AbstractAutoProxyCreator#postProcessAfterInitialization()
 
 - InstantiationAwareBeanPostProcessor
 

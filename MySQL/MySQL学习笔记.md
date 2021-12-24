@@ -1,39 +1,3 @@
-<!-- TOC -->
-
-- [MySQL学习笔记](#mysql学习笔记)
-    - [配置](#配置)
-        - [字符集](#字符集)
-        - [常用配置](#常用配置)
-    - [文件结构](#文件结构)
-    - [架构](#架构)
-        - [插件式存储引擎](#插件式存储引擎)
-        - [存储引擎](#存储引擎)
-    - [Join](#join)
-    - [索引](#索引)
-    - [SQL优化](#sql优化)
-        - [SQL性能影响因素](#sql性能影响因素)
-        - [MySQL性能瓶颈](#mysql性能瓶颈)
-        - [explain](#explain)
-        - [索引优化分析](#索引优化分析)
-        - [查询截取分析](#查询截取分析)
-            - [总体思路](#总体思路)
-            - [慢查询](#慢查询)
-            - [show profiles](#show-profiles)
-            - [全局查询日志](#全局查询日志)
-    - [锁](#锁)
-        - [分类](#分类)
-        - [案例](#案例)
-            - [MyISAM表锁](#myisam表锁)
-            - [InnoDB行锁](#innodb行锁)
-        - [事务](#事务)
-            - [ACID](#acid)
-            - [并发事务问题](#并发事务问题)
-            - [事务隔离级别](#事务隔离级别)
-    - [主从复制](#主从复制)
-        - [原理](#原理)
-
-<!-- /TOC -->
-
 # MySQL学习笔记
 
 ## 配置
@@ -62,14 +26,6 @@
 - `log-error`:错误日志。记录严重错误和警告信息，启动和关闭详细信息。
 
 - `log`：查询日志。记录查询的SQL语句。
-
-## 文件结构
-
-- `frm`文件：存放表结构
-
-- `myd`文件：存放表数据
-
-- `myi`文件：存放表索引
 
 ## 架构
 
@@ -120,19 +76,32 @@
   
 ## Join
 
-- SQL执行顺序
+### SQL执行顺序
 
-  - 手写
+```sql
+(8) SELECT (9)DISTINCT<Select_list>
+(1) FROM <left_table> (3) <join_type>JOIN<right_table>
+(2) ON<join_condition>
+(4) WHERE<where_condition>
+(5) GROUP BY<group_by_list>
+(6) WITH {CUBE|ROLLUP}
+(7) HAVING<having_condtion>
+(10) ORDER BY<order_by_list>
+(11) LIMIT<limit_number>
+```
 
-    ![mysql-2](assets/mysql-2.jpg)
 
-  - 机读
 
-    ![mysql-3](assets/mysql-3.jpg)
+### 分类
 
-- 分类
+![mysql-4](assets/mysql-4.jpg)
 
-  ![mysql-4](assets/mysql-4.jpg)
+## 其它一些知识点
+
+### 正则表达式
+
+### 常用函数
+
 
 
 ## 索引
@@ -157,8 +126,21 @@
 - 分类
 
   - 单值索引
+    - 每一个索引只包含一个列，一个表可以有多个单值索引
   - 唯一索引
+    - 索引列值必须唯一，但是可以允许有多个NULL
   - 复合索引
+    - 一个索引包含多个列。对多个列建立索引，优先考虑建立复合索引，原因是在同时使用多个字段查询时，可以最大程度的利用索引。
+    
+      ```sql
+      -- 比如给id,name,score三个字段加索引
+      -- 创建复合索引(id,name,score)
+      	-- 相当于建立了三个索引(id),(id,name),(id,name,score)，当where后面同时根据id,name,score查询时，三个字段的索引都能被利用
+      -- 如果为三个字段分别创建单列索引
+      	-- (id),(name),(score),当where后面同时根据id,name,score查询时，MySQL只会使用其中最优的一个字段的索引
+      ```
+    
+      
 
 - 相关命令
 
@@ -182,17 +164,39 @@
 
   
 
-- 索引结构分为B+树、Hash索引等，主要使用B++树。
+- 索引结构分为B+树、Hash索引等，主要使用B+树。B+树和二叉树比较，存储相同数量量，B+树的层次会更少，IO操作次数会更少，查询效率会更高
+
+- B树
+
+![image-20211030160039201](assets/image-20211030160039201.png)
+
+
+
+- B+树
+
+![image-20211030160931192](assets/image-20211030160931192.png)
+
+- B+树是B树的改进版
+  - B+树的叶子节点中保存所有key的信息，并且按照key的顺序排列存储。
+  - 数据只保存在叶子节点，非叶子结点只保存索引，所有数据查询都需要从root节点到叶子节点，查询稳定性比较好
+  - MySQL中的B+树是优化后的，在所有叶子节点之间增加链表指针，提高区间访问数据的效率
+
+
+
+
 
 - 索引原理
 
-  ![mysql-6](assets/mysql-6.jpg)
+  
 
-一颗B++树中，浅蓝色的表示一个磁盘块，包含几个数据项（深蓝色）和指针（黄色）。真实数据全部保存在叶子节点数据项中，非叶子节点不存储真实数据，只存储指引搜索方向的数据项。B++树一般高度为三层，可以容纳上百万数据项，但是只需要3次IO操作，所以效率是很高的。
+一颗B+树中，浅蓝色的表示一个磁盘块，包含几个数据项（深蓝色）和指针（黄色）。真实数据全部保存在叶子节点数据项中，非叶子节点不存储真实数据，只存储指引搜索方向的数据项。B+树一般高度为三层，可以容纳上百万数据项，但是只需要3次IO操作，所以效率是很高的。
 
 - 需要建立索引的情况
 
+  - 对查询频率高，数据量大的表建立索引
   - 主键自动会创建唯一索引
+  - 尽量使用唯一索引，区分度（辨识度）越高，使用索引的效率越高
+  - 对辨识度高的字段建立索引
   - 频繁作为查询条件的字段
   - 查询中与其它表关联的字段，外键字段
   - 高并发下优先建立复合索引（相比于单值索引）
@@ -221,7 +225,20 @@
 - IO
 - 查看性能状态常用命令：top、free、iostat、vmstat
 
-### explain
+### SQL优化一般步骤
+
+#### 查看 SQL执行频率
+
+- 使用`show [session|global] status like 'Com%'`可以查看SQL执行频率，Innodb可以使用`show [session|global] status like 'Innodb_rows_%'`
+
+#### 定位低效率SQL
+
+- 慢查询日志，但是只能在查询结束后才会被记录
+- show processlist命令可以实时的查看每个客户端执行的慢SQL执行情况
+
+#### Explain分析执行计划
+
+##### 概念
 
 - 查看执行计划。可以使用explain模拟优化器执行SQL语句，知道MySQL是如何执行SQL语句的。分析表结构和SQL语句的性能瓶颈。
 
@@ -234,110 +251,156 @@
   - 表之间的引用（`ref`字段）
   - 被优化器查询的记录行数（`rows`字段）
 
-- 执行计划包含内容
+##### 执行计划包含内容
 
   ![mysql-7](assets/mysql-7.jpg)
-  
+
   各个字段含义：
-  
+
   - `id`
-  
-    表示执行顺序。相同的id从上向下执行，不同的id，id越大越先执行。
-  
+
+    表示select子句或者操作表的顺序。相同的id从上向下执行，不同的id，id越大越先执行。
+
   - `select_type`
-  
+
     查询类型，用来区别简单查询、联合查询、子查询。
-  
+
     - `SIMPLE`：简单select语句，不包含子查询或UNION
     - `PRIMARY`：如果存在子查询，最外面一层标记为PRIMARY
     - `SUBQUERY`：WHERE或SELECT存在子查询部分
     - `DERIVED`：FROM中包含的子查询部分
     - `UNION`：UNION语句中第二个select语句
-    - `UNION` RESULT：UNION返回结果的select语句
-  
+    - `UNION RESULT`：UNION返回结果的select语句
+
   - `table`
-  
-    这行数据是关于哪张表的。
-  
+
+    这行数据是来源于哪张表的。
+
   - `partitions`
-  
+
   - `type`
-  
+
     访问类型，一般至少达到`range`及以上。
-  
+
     - `NULL`
-  
+
       不需要扫描索引或者表就可以得到结果。
-  
+
       ```sql
-      explain select version(); 
+      explain select now(); 
       ```
-  
+
     - `system`
-  
+
       `const`的特例，所查询的表中只有一条记录。
-  
+
       ```sql
       explain select * from (select * from emp where eid=1) t; 
       ```
-  
+
     - `const`
-  
-      通过索引一次就能找到，一般`where`后面使用`primary key`或者`unique index`判断。因为只匹配确定的一行数据，速度很快。
-  
+
+      唯一索引扫描，只会匹配一条结果，一般`where`后面使用`primary key`或者`unique index`判断。因为只匹配确定的一行数据，速度很快。
+
       ```sql
       explain select* from emp where eid=1;  
       ```
-  
+
     - `eq_ref`
-  
-      通常出现在多表的 join 查询，表示对于前表的每一个结果，都只能匹配到后表的一行结果，并且查询的比较操作通常是 =，查询效率较高。
-  
+
+      通常出现在多表的 join 查询，表示对于前表的每一个结果，都只能匹配到后表的一行结果（通过主键或者唯一索引扫描），并且查询的比较操作通常是 =，查询效率较高。
+
       ```sql
       explain select * from a join b on a.id=b.id; 
       ```
-  
+
     - `ref`
-  
-      此类型通常出现在多表的 join 查询，针对于非唯一或非主键索引，或者是使用了**最左前缀规则**索引的查询。
-  
+
+      非唯一索引扫描，会匹配多条结果，此类型通常出现在多表的 join 查询，针对于非唯一或非主键索引，或者是使用了**最左前缀规则**索引的查询。
+
     - `range`
-  
+
       使用索引范围查询，通过索引字段范围获取表中部分数据记录，性能比全表扫描好。一般是`where`中使用了between、in、<、>、IS NULL的查询。
-  
+
     - `index`
-  
-      遍历索引树，一般比all要快。因为all是全表扫描，从硬盘读取。当是这种情况时, `Extra` 字段 会显示 `Using index`。
-  
+
+      遍历索引树，一般比all要快。因为all是遍历硬盘文件读取数据。当是这种情况时, `Extra` 字段 会显示 `Using index`。
+
+      ```sql
+      -- id覆盖索引列，只需要遍历索引树即可，不需要遍历数据文件
+      explain select id from a;
+      ```
+
     - `all`
-  
-      扫描全表。  
-  
+
+      扫描全表的数据文件。
+      
+      ```sql
+      explain select * from a;
+      ```
+      
+        
+
   - `possible_keys`
-  
+
     查询字段上面如果存在索引，会列出，但不一定会实际用到。
-  
+
   - `key`
-  
+
     实际使用的索引。如果为`NULL`，则没有使用到索引。
-  
+
   - `key_len`
-  
+
     索引中使用的字段长度。
-  
+
   - `ref`
-  
+
     显示索引中哪一列被引用了。
-  
+
   - `rows`
-  
+
     找到所需记录需要读取的行数。
-  
+
   - `filtered`
-  
+
   - `Extra`
-  
+
     额外一些重要信息。如`Using filesort`、`Using temporary`、`Using index`等。
+    
+    ```
+    Using filesort：扫描数据文件内容，并对其进行排序，效率低下
+    Using temporary：使用临时表存储中间结果
+    Using index：使用了覆盖索引
+    Using index condition：查询走索引了，但是索引列中只有select中部分字段的数据，其他的数据还需要回表查询
+    Using index;Using where：查询使用了索引，并且索引列中已经包含了select所有的列数据，不需要再回表查询
+    ```
+    
+    
+
+#### 其它优化
+
+##### 大批量导入数据
+
+- 按主键的顺序导入
+- 关闭唯一性校验
+- 关闭自动提交事务
+
+##### insert语句优化
+
+- 使用values(),(),()的方式一次性插入
+- 保证插入的数据的主键有序
+- 关闭事务自动提交，在同一个事务当中插入
+
+##### limit分页
+
+- 如果主键自增，可以使用范围查询+limit y取代直接limit x , y
+- 通用方式：先通过索引字段排序并返回分页的id，再通过和主表JOIN关联查询出全部的查询结果
+
+##### SQL提示
+
+- use index
+- ignore index
+- force index
 
 ### 索引优化分析
 
@@ -396,7 +459,7 @@
     
   - ORDER BY
     
-    - MySQL排序有2种：filesort和index。前者性能较差，后者性能较好。
+    - MySQL排序有2种：filesort和index。前者性能较差，后者性能较好。所有不是通过索引直接返回有序结果的排序方式都叫filesort，通过索引查询直接返回有序数据的方式叫index，不需要额外排序，效率较高
     
     - ORDER BY使用index排序的条件：
     
@@ -409,17 +472,21 @@
       - 双路算法
     
         - 2次IO操作
-    - 单路算法
-      
-      - 会将所有字段取出，在sort_buffer中1次排序IO操作，内存占用空间比双路要大。缺点是，如果sort_buffer不够大，会导致需要取多次才能完成排序，IO次数反而比双路算法更多。
-      - 因此，**使用order by不要使用select ***，因为select *会将所有字段取出，更容易使sort_buffer空间占满，导致多次IO操作。
+      - 单路算法
+        - 会将所有字段取出，在sort_buffer中1次排序IO操作，内存占用空间比双路要大。缺点是，如果sort_buffer不够大，会导致需要取多次才能完成排序，IO次数反而比双路算法更多。
+        - 因此，**使用order by不要使用select ***，因为select *会将所有字段取出，更容易使sort_buffer空间占满，导致多次IO操作。
     - 优化方案
         - 增大`sort_buffer_size`
         - 增大`max_length_for_sort_data`
     
   - GROUP BY
     
-    - 参考ORDER BY。
+    - 参考ORDER BY
+    - GROUP BY底层默认也会执行排序操作，如果想要避免排序的开销，可以加上`order by null`
+    
+  - 子查询
+    
+    - 尽量使用更高效的JOIN代替子查询
     
   - 结论
     
@@ -440,33 +507,46 @@
     
     - 适当设置join buffer。 
 
-- 索引失效
+- 避免索引失效
 
   - 全值匹配（个数和顺序）
 
-  - **最佳左前缀匹配**
+    - 创建的索引中的列和实际查询时where中的列个数和顺序完全匹配
 
-    **索引包含多列时，查询要从索引最左边列开始并且不要跳过索引中的列。**
+  - **最佳左前缀匹配**，仅限于复合索引判断，单列索引不存在这个问题
 
-  - 不要再索引列上做任何运算或者（显示或者隐式）类型转换，否则会导致索引失效全表扫描。
+    - **索引包含多列时，查询要从索引最左边列开始并且不要跳过索引中的列。**
+    - where后面的字段顺序不影响索引生效，SQL优化器会自动优化为索引的顺序
+
+  - 不要在索引列上做任何运算或者（显示或者隐式）类型转换（比如字符串不加单引号，查询结果没问题，但是会导致索引失效），否则会导致索引失效全表扫描。
 
   - 存储引擎不能使用**索引中范围条件右边的列**。
 
-  - 尽量使用**覆盖索引**，避免使用select *，尽量保证**查询列和索引列一致或者是索引列的子集**。
+    ```sql
+    -- 建立索引 idx_name_age_score
+    -- 只有name和age索引生效，score不走索引
+    explain select * from where name=xxx and age>xxx and score
+    ```
+
+    
+
+  - 尽量使用**覆盖索引**，避免使用select *，尽量保证**查询列和索引列一致或者是索引列的子集**，可以直接从索引列上直接返回数据，不需要再额外回表查询。
 
     ```sql
     explain select * from a where aname='a2' and level>=4; 
     -- 修改为
     explain select aname,level,class from a where aname='a2' and level>=4; 
     -- 后
-    -- type由range变为ref，并且Using index，直接从索引上获取数据
+    -- type由range变为ref
     ```
 
-  - 使用不等于(!=或者<>)、is(not) null索引会失效
+  - 使用不等于(!=或者<>)索引会失效
 
-  - 用or连接也会失效
+  - in会走索引，not in索引失效
 
-  - like中通配符**%开头**索引也会失效（如果一定要使用%开头，可以使用**覆盖索引**避免ALL全表扫描）
+  - 用or连接的多个查询条件，只要有一个没有走索引，那么所有的条件都不会走索引。并且or的条件不能使用复合索引（索引中最左列的字段可以使用），需要创建对应的单列索引。可以使用union操作代替or条件
+
+  - like中通配符**%开头**索引也会失效（如果一定要使用%开头，可以使用**覆盖索引**，遍历索引树来查询，避免ALL全表扫描）
 
     ```sql
     explain select * from a where aname='a2';                                                            
@@ -496,6 +576,10 @@
     ```
 
   - 索引列类型为字符串，如果不加单引号，会发生隐式类型转换，导致索引失效。
+
+  - 如果MySQL评估使用索引比全表扫描速度更慢，不使用索引。比如某一列数据中，某一个值远远大于其他的值，那么查询时会直接全表扫描
+
+  - is(not) null要取决于该字段中NULL和NOT NULL的值的比例，根据上一条规则，如果NULL的值远远大于NOT NULL的值，那么is NULL不会走索引，is not null会走索引。反之同理
 
 - 其它
 
@@ -564,8 +648,13 @@
 - 默认关闭，使用时需要开启。
 
 ```sql
+-- 是否支持该功能
+select @@have_profiling;
+-- 是否开启
+select @@profiling; 
 show variables like '%profiling%'; 
 set profiling=on;
+show profiles;
 show profile all for query 2; 
 ```
 
@@ -574,6 +663,8 @@ show profile all for query 2;
   - creating tmp table
   - copying to tmp table on disk
   - locked
+
+#### trace分析优化器执行计划
 
 #### 全局查询日志
 
@@ -584,6 +675,73 @@ show variables like '%general_log%';
 set global general_log=1;
 set global log_output='TABLE';
 ```
+
+## 其它优化
+
+### 应用优化
+
+- 使用数据库连接池
+- 减少数据库重复访问
+- 采用主从复制、读写分离架构
+- 采用分布式数据库架构
+- 考虑引入其他存储中间件，比如引入redis缓存热点数据，使用ES等全文检索服务，将非核心数据放入MongoDB等数据库提高插入查询效率
+
+### 查询缓存优化
+
+- 当开启MySQL查询缓存后，当执行完全相同的SQL语句（字母大小写敏感）时候，会将查询结果缓存，当表的数据发生修改后（包括insert、update、delete、alter table、drop table、truncate table、drop database等），查询缓存失效，不适合修改操作很频繁的表
+
+- 指令
+
+  ```sql
+  -- 查看当前MySQL是否支持查询缓存
+  SHOW VARIABLES LIKE 'have_query_cache';
+  -- 是否开启查询缓存
+  SHOW VARIABLES LIKE 'query_cache_type';
+  -- 查询缓存大小
+  SHOW VARIABLES LIKE 'query_cache_size';
+  -- 查看查询缓存的状态
+  SHOW STATUS LIKE 'Qcache%';
+  -- 主要关注以下指标
+  -- Qcache_hits 缓存命中数
+  -- Qcache_inserts 添加到查询缓存的查询数
+  -- Qcache_not_cached 未缓存的查询数
+  
+  -- 在my.cnf中开启查询缓存
+  query_cache_type=1
+  
+  ```
+
+  
+
+- 可以通过SQL_CACHE和SQL_NO_CACHE设置SQL是否缓存
+
+- 查询缓存失效
+
+  - SQL语句不一致
+  - 查询语句中有一些不确定的函数或者值，比如now(),rand(),uuid()等
+  - 不使用任何表查询语句，如 select 1;
+  - 查询mysql，information_schema，performance_schema等内置数据表时，不会走查询缓存
+  - 如果表数据发生改变，则该表的所有查询缓存都会失效并删除
+
+### InnoDB内存优化
+
+- innodb_buffer_pool_size
+- Innodb_log_buffer_size
+
+### 并发参数优化
+
+- max_connections，最大连接数，如果connection_errors_max_connections不为零并且一直增长可以考虑增大该值
+- back_log，请求积压堆栈大小
+- Table_open_cache
+- Thread_cache_size
+- Innodb_lock_wait_timeout
+
+### 锁优化
+
+- 尽可能所有数据查询操作都通过索引完成，避免行锁升级为表锁
+- 合理设计索引，缩小锁的范围
+- 减少索引范围条件的涉及范围，避免间隙锁带来的性能开销
+- 尽可能使用低级别事务隔离级别
 
 ## 锁
 
@@ -661,6 +819,17 @@ unlock tables;
 
 #### InnoDB行锁
 
+- 对于DML语句，Innodb会自动添加排他锁，对于SELECT语句，默认不会加任何锁
+
+- 可以显式给SELECT语句添加共享锁或者排他锁
+
+  ```sql
+  select * from t where ... LOCK IN SHARE MODE
+  select * from t where ... FOR UPDATE
+  ```
+
+  
+
 ```sql
 -- 查看行锁状态
 show status like '%row_lock%';
@@ -682,7 +851,7 @@ update y set yname='y4' where id=2;
 
   - InnoDB行锁是通过给索引上的索引项加锁来实现的，**只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁**。
 
-  - 因此，索引失效会导致行锁升级成为表锁。
+  - 因此，没有走索引或者索引失效会导致行锁升级成为表锁。
   
     ```sql
     +----+-------+
@@ -701,7 +870,7 @@ update y set yname='y4' where id=2;
 	  
 	- 	间隙锁
 		
-		当使用范围条件而不是相等条件检索数据，并且请求锁时，InnoDB会将该范围内所有记录都会加锁，无论记录存不存在。因此，有的时候，间隙锁会给系统带来一些性能问题。
+		当使用范围条件而不是相等条件检索数据，并且请求锁时，InnoDB会**将该范围内所有记录都会加锁，无论记录存不存在**。因此，有的时候，间隙锁会给系统带来一些性能问题。
 		
 		```sql
 		+----+-------+
@@ -749,7 +918,17 @@ update y set yname='y4' where id=2;
 
 #### 并发事务问题
 
+- 数据覆盖，多个事务修改同一行数据，后面的事务会覆盖前面事务的数据
+- 脏读，一个事务使用了另一个事务还未提交的数据
+- 不可重复读，对于在同一个事务中读取**同一个数据**，多次读取的结果不一样
+- 幻读，对于**同一个查询条件**查询得到的结果不一样
+
 #### 事务隔离级别
+
+- 读未提交
+- 读已提交
+- 可重复读
+- 串行化
 
 ## 主从复制 
 

@@ -1,0 +1,6 @@
+# Spring Data JPA
+
+## Spring Data JPA工作原理
+
+- JpaRepositoryFactoryBean是一个FactoryBean，同时实现了InitializingBean接口，当Bean实例化时会调用afterPropertiesSet()方法，在该方法中会创建JpaRepositoryFactory对象并调用其getRepository()方法（在RepositoryFactorySupport中），在该方法中getRepositoryInformation()中会先通过反射的方式创建SimpleJpaRepository实例，这个SimpleJpaRepository实现了JpaRepository和JpaSpecificationExecutor，即实现了JPA的基本API操作。然后再通过动态代理技术为SimpleJpaRepository实例生成代理对象
+- JpaRepositoryFactoryBean的getObject()中会将上面创建出的Repository代理对象放入IOC容器中供后续使用

@@ -3,7 +3,7 @@
 ## JDBC开发问题
 
 - 数据库连接创建、释放频繁造成系统资源浪费
--  Sql语句在代码中硬编码
+- Sql语句在代码中硬编码
 - 使用preparedStatement向占有位符号传参数存在硬编码
 - 对结果集解析存在硬编码(查询列名)
 
@@ -109,4 +109,3 @@ public static void main(String[] args) {
 ### BaseMapper SQL注入原理
 
 - MybatisPlus初始化解析mapper配置的时候，会依次调用MybatisConfiguration.addMapper()、MybatisMapperRegistry.addMapper()为每一个Mapper接口创建对应的MybatisMapperProxyFactory，同时，会调用MybatisMapperAnnotationBuilder.parse()，在该方法中会判断如果实现了BaseMapper接口，最终会调用DefaultSqlInjector.inspectInject()，在该方法中，会获取到BaseMapper内置的这些方法所对应的AbstractMethod集合，依次调用各自的inject()，最终通过MapperBuilderAssistant.addMappedStatement()将这些基本的CRUD API注入到Mybatis中
-

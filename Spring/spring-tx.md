@@ -36,8 +36,6 @@
 
 ## 事务传播行为
 
-
-
 ## Java事务管理
 
 ### 局部事务
@@ -96,13 +94,18 @@
 AbstractPlatformTransactionManager是所有PlatformTransactionManager实现类的父类，采用模板方法模式，定义统一的事务处理逻辑，只将跟事务资源相关操作留给子类实现。以DataSourceTransactionManager为例，
 
 - getTransaction()开启事务
+  
   - doGetTransaction()获取事务资源，如DataSourceTransactionManager的事务资源是DataSourceTransactionObject，是通过TransactionSynchronizationManager从当前线程中获取。
   - isExistingTransaction()判断当前是否存在事务，然后根据传入的不同事务传播行为选择挂起还是抛出异常。如果存在当前事务，统一由handleExistingTransaction()根据不同事务传播行为进行处理。如果不存在事务，也同样会根据不同事务传播行为进行处理。
+
 - commit()提交事务
+  
   - TransactionStatus.isCompleted()检查检查当前事务是否已结束。
   - 检查rollbackOnly标记，如果是true，则会通过processRollback()执行回滚操作。否则会通过processCommit()执行提交操作。
   - processCommit()主要逻辑和processRollback()差不多，就是多了一些扩展点。详见AbstractPlatformTransactionManager.processCommit()。
+
 - rollback()回滚事务
+  
   - TransactionStatus.isCompleted()检查当前事务是否已结束。
   - 通过processRollback()执行回滚操作。
   - processRollback()主要逻辑
@@ -114,8 +117,11 @@ AbstractPlatformTransactionManager是所有PlatformTransactionManager实现类�
     - 通过cleanupAfterCompletion()清理资源。
 
 - suspend()
+  
   - 暂停事务，将挂起事务的资源从TransactionSynchronizationManager中解除绑定，并将其存入SuspendedResourcesHolder中。
+
 - resume()
+  
   - 恢复事务，将挂起事务的资源从SuspendedResourcesHolder取出，并重新绑定到TransactionSynchronizationManager中。
 
 ### 编程式事务

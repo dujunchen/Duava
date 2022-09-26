@@ -11,8 +11,6 @@
   - 翻墙
   - 缓存服务，如Maven私服
 
-
-
 ### 反向代理
 
 ![image-20210905231652693](assets/image-20210905231652693.png)
@@ -26,13 +24,16 @@
 ## 工作模型
 
 - Reactor模式
+  
   - 启动后会有一个Master进程和一个或者多个Worker进程。Master进程用来监听外部请求并将求请求转发给Worker进程，Worker进程用来真正处理连接请求
   - Master进程会监控所有Worker进程，如果Worker进程退出则会启动新的Worker进程
 
 - 惊群现象
+  
   - 所有子进程都会被激活，接收Master进程的请求转发，并竞争连接，但最终只会有一个进程连接成功，但是会导致消耗大量系统资源。nginx在accept()上加了一把accept_mutex共享锁，执行accept()之前需要先获得锁，从而解决惊群现象
 
 - 为什么采用多进程，而不是多线程？
+  
   - 每个Worker都是单独进程，不共享资源，不需要加锁节约加锁的开销
   - 每个Worker都是单独进程，一个Worker退出并不会影响其它的Worker进程
 
@@ -61,7 +62,6 @@
 # error_log [path] [debug | info | notice | warn | error | crit | alert | emerg] 
 # error_log  logs/error.log  notice;
 # error_log  logs/error.log  info;
-
 ```
 
 ### events块
@@ -87,7 +87,6 @@
 # 只能在events块中进行配置
 # 注意：这个值不能超过超过系统支持打开的最大文件数，也不能超过单个进程支持打开的最大文件数，具体可以参考这篇文章：https://cloud.tencent.com/developer/article/1114773
 # worker_connections  1024;
-
 ```
 
 ### http块
@@ -138,8 +137,6 @@
 # keepalive_requests number;
 ```
 
-
-
 ### 配置例子
 
 ```nginx
@@ -148,7 +145,7 @@ user www www;
 
 #nginx进程数，建议设置为等于CPU总核心数。
 worker_processes 8;
- 
+
 #全局错误日志定义类型，[ debug | info | notice | warn | error | crit ]
 error_log /usr/local/nginx/logs/error.log info;
 
@@ -202,13 +199,13 @@ events
     #open_file_cache指令中的inactive参数时间内文件的最少使用次数，如果超过这个数字，文件描述符一直是在缓存中打开的，如上例，如果有一个文件在inactive时间内一次没被使用，它将被移除。
     #语法:open_file_cache_min_uses number 默认值:open_file_cache_min_uses 1 使用字段:http, server, location  这个指令指定了在open_file_cache指令无效的参数中一定的时间范围内可以使用的最小文件数,如果使用更大的值,文件描述符在cache中总是打开状态.
     open_file_cache_min_uses 1;
-    
+
     #语法:open_file_cache_errors on | off 默认值:open_file_cache_errors off 使用字段:http, server, location 这个指令指定是否在搜索一个文件时记录cache错误.
     open_file_cache_errors on;
 }
- 
- 
- 
+
+
+
 #设定http服务器，利用它的反向代理功能提供负载均衡支持
 http
 {
@@ -243,7 +240,7 @@ http
 
     #此选项允许或禁止使用socke的TCP_CORK的选项，此选项仅在使用sendfile的时候使用
     tcp_nopush on;
-     
+
     tcp_nodelay on;
 
     #长连接超时时间，单位是秒
@@ -274,7 +271,7 @@ http
 
     #负载均衡配置
     upstream jh.w3cschool.cn {
-     
+
         #upstream的负载均衡，weight是权重，可以根据机器配置定义权重。weigth参数表示权值，权值越高被分配到的几率越大。
         server 192.168.80.121:80 weight=3;
         server 192.168.80.122:80 weight=2;
@@ -337,9 +334,9 @@ http
         #client_body_temp_path设置记录文件的目录 可以设置最多3层目录
         #location对URL进行匹配.可以进行重定向或者进行新的代理 负载均衡
     }
-     
-     
-     
+
+
+
     #虚拟主机的配置
     server
     {
@@ -358,19 +355,19 @@ http
             fastcgi_index index.php;
             include fastcgi.conf;
         }
-         
+
         #图片缓存时间设置
         location ~ .*.(gif|jpg|jpeg|png|bmp|swf)$
         {
             expires 10d;
         }
-         
+
         #JS和CSS缓存时间设置
         location ~ .*.(js|css)?$
         {
             expires 1h;
         }
-         
+
         #日志格式设定
         #$remote_addr与$http_x_forwarded_for用以记录客户端的ip地址；
         #$remote_user：用来记录客户端用户名称；
@@ -384,20 +381,20 @@ http
         log_format access '$remote_addr - $remote_user [$time_local] "$request" '
         '$status $body_bytes_sent "$http_referer" '
         '"$http_user_agent" $http_x_forwarded_for';
-         
+
         #定义本虚拟主机的访问日志
         access_log  /usr/local/nginx/logs/host.access.log  main;
         access_log  /usr/local/nginx/logs/host.access.404.log  log404;
-         
+
         #对 "/" 启用反向代理
         location / {
             proxy_pass http://127.0.0.1:88;
             proxy_redirect off;
             proxy_set_header X-Real-IP $remote_addr;
-             
+
             #后端的Web服务器可以通过X-Forwarded-For获取用户真实IP
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-             
+
             #以下是一些反向代理的配置，可选。
             proxy_set_header Host $host;
 
@@ -439,8 +436,8 @@ http
             #设定缓存文件夹大小，大于这个值，将从upstream服务器传
             proxy_temp_file_write_size 64k;
         }
-         
-         
+
+
         #设定查看Nginx状态的地址
         location /NginxStatus {
             stub_status on;
@@ -449,7 +446,7 @@ http
             auth_basic_user_file confpasswd;
             #htpasswd文件的内容可以用apache提供的htpasswd工具来产生。
         }
-         
+
         #本地动静分离反向代理配置
         #所有jsp的页面均交由tomcat或resin处理
         location ~ .(jsp|jspx|do)?$ {
@@ -458,14 +455,14 @@ http
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_pass http://127.0.0.1:8080;
         }
-         
+
         #所有静态文件由nginx直接读取不经过tomcat或resin
         location ~ .*.(htm|html|gif|jpg|jpeg|png|bmp|swf|ioc|rar|zip|txt|flv|mid|doc|ppt|
         pdf|xls|mp3|wma)$
         {
             expires 15d; 
         }
-         
+
         location ~ .*.(js|css)?$
         {
             expires 1h;
@@ -473,6 +470,3 @@ http
     }
 }
 ```
-
-
-

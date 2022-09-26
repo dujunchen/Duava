@@ -211,7 +211,7 @@ mvn install -Dmaven.skip.test=true
 ```
 
 5. 配置每一个 Zookeeper 的 dataDir（zoo.cfg） clientPort 分别为 2181 2182 2183
-
+   
    修改```/usr/local/zookeeper-cluster/zookeeper-1/conf/zoo.cfg```
 
 ```shell
@@ -219,14 +219,14 @@ clientPort=2181
 dataDir=/usr/local/zookeeper-cluster/zookeeper-1/data
 ```
 
-​	修改/usr/local/zookeeper-cluster/zookeeper-2/conf/zoo.cfg
+​    修改/usr/local/zookeeper-cluster/zookeeper-2/conf/zoo.cfg
 
 ```shell
 clientPort=2182
 dataDir=/usr/local/zookeeper-cluster/zookeeper-2/data
 ```
 
-​	修改/usr/local/zookeeper-cluster/zookeeper-3/conf/zoo.cfg
+​    修改/usr/local/zookeeper-cluster/zookeeper-3/conf/zoo.cfg
 
 ```shell
 clientPort=2183
@@ -238,7 +238,7 @@ dataDir=/usr/local/zookeeper-cluster/zookeeper-3/data
 1. 在每个 zookeeper 的 data 目录下创建一个 myid 文件，内容分别是 1、2、3 。这个文件就是记录每个服务器的 ID
 
 2. 在每一个 zookeeper 的 zoo.cfg 配置客户端访问端口（clientPort）和集群服务器 IP 列表。
-
+   
    集群服务器 IP 列表如下
 
 ```shell
@@ -254,8 +254,6 @@ server.3=192.168.25.140:2883:3883
 启动集群就是分别启动每个实例。
 
 ![](img/zk.png)
-
-
 
 ### 2.3.2 RPC服务接口
 
@@ -283,7 +281,7 @@ public interface IUserService {
         <artifactId>dubbo-spring-boot-starter</artifactId>
         <version>2.0.0</version>
     </dependency>
-	<!--spring-boot-stater-->
+    <!--spring-boot-stater-->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter</artifactId>
@@ -294,7 +292,7 @@ public interface IUserService {
             </exclusion>
         </exclusions>
     </dependency>
-	<!--zookeeper-->
+    <!--zookeeper-->
     <dependency>
         <groupId>org.apache.zookeeper</groupId>
         <artifactId>zookeeper</artifactId>
@@ -322,7 +320,7 @@ public interface IUserService {
             </exclusion>
         </exclusions>
     </dependency>
-	<!--API-->
+    <!--API-->
     <dependency>
         <groupId>com.itheima.demo</groupId>
         <artifactId>dubbo-api</artifactId>
@@ -493,117 +491,117 @@ public class UserController {
 
 ### 1）优惠券表
 
-| Field        | Type                | Comment                  |
-| ------------ | ------------------- | ------------------------ |
-| coupon_id    | bigint(50) NOT NULL | 优惠券ID                 |
-| coupon_price | decimal(10,2) NULL  | 优惠券金额               |
-| user_id      | bigint(50) NULL     | 用户ID                   |
-| order_id     | bigint(32) NULL     | 订单ID                   |
+| Field        | Type                | Comment        |
+| ------------ | ------------------- | -------------- |
+| coupon_id    | bigint(50) NOT NULL | 优惠券ID          |
+| coupon_price | decimal(10,2) NULL  | 优惠券金额          |
+| user_id      | bigint(50) NULL     | 用户ID           |
+| order_id     | bigint(32) NULL     | 订单ID           |
 | is_used      | int(1) NULL         | 是否使用 0未使用 1已使用 |
-| used_time    | timestamp NULL      | 使用时间                 |
+| used_time    | timestamp NULL      | 使用时间           |
 
 ### 2）商品表
 
-| Field        | Type                | Comment  |
-| ------------ | ------------------- | -------- |
-| goods_id     | bigint(50) NOT NULL | 主键     |
-| goods_name   | varchar(255) NULL   | 商品名称 |
-| goods_number | int(11) NULL        | 商品库存 |
-| goods_price  | decimal(10,2) NULL  | 商品价格 |
-| goods_desc   | varchar(255) NULL   | 商品描述 |
-| add_time     | timestamp NULL      | 添加时间 |
+| Field        | Type                | Comment |
+| ------------ | ------------------- | ------- |
+| goods_id     | bigint(50) NOT NULL | 主键      |
+| goods_name   | varchar(255) NULL   | 商品名称    |
+| goods_number | int(11) NULL        | 商品库存    |
+| goods_price  | decimal(10,2) NULL  | 商品价格    |
+| goods_desc   | varchar(255) NULL   | 商品描述    |
+| add_time     | timestamp NULL      | 添加时间    |
 
 ### 3）订单表
 
-| Field           | Type                | Comment                                      |
-| --------------- | ------------------- | -------------------------------------------- |
-| order_id        | bigint(50) NOT NULL | 订单ID                                       |
-| user_id         | bigint(50) NULL     | 用户ID                                       |
+| Field           | Type                | Comment                     |
+| --------------- | ------------------- | --------------------------- |
+| order_id        | bigint(50) NOT NULL | 订单ID                        |
+| user_id         | bigint(50) NULL     | 用户ID                        |
 | order_status    | int(1) NULL         | 订单状态 0未确认 1已确认 2已取消 3无效 4退款 |
-| pay_status      | int(1) NULL         | 支付状态 0未支付 1支付中 2已支付             |
-| shipping_status | int(1) NULL         | 发货状态 0未发货 1已发货 2已退货             |
-| address         | varchar(255) NULL   | 收货地址                                     |
-| consignee       | varchar(255) NULL   | 收货人                                       |
-| goods_id        | bigint(50) NULL     | 商品ID                                       |
-| goods_number    | int(11) NULL        | 商品数量                                     |
-| goods_price     | decimal(10,2) NULL  | 商品价格                                     |
-| goods_amount    | decimal(10,0) NULL  | 商品总价                                     |
-| shipping_fee    | decimal(10,2) NULL  | 运费                                         |
-| order_amount    | decimal(10,2) NULL  | 订单价格                                     |
-| coupon_id       | bigint(50) NULL     | 优惠券ID                                     |
-| coupon_paid     | decimal(10,2) NULL  | 优惠券                                       |
-| money_paid      | decimal(10,2) NULL  | 已付金额                                     |
-| pay_amount      | decimal(10,2) NULL  | 支付金额                                     |
-| add_time        | timestamp NULL      | 创建时间                                     |
-| confirm_time    | timestamp NULL      | 订单确认时间                                 |
-| pay_time        | timestamp NULL      | 支付时间                                     |
+| pay_status      | int(1) NULL         | 支付状态 0未支付 1支付中 2已支付         |
+| shipping_status | int(1) NULL         | 发货状态 0未发货 1已发货 2已退货         |
+| address         | varchar(255) NULL   | 收货地址                        |
+| consignee       | varchar(255) NULL   | 收货人                         |
+| goods_id        | bigint(50) NULL     | 商品ID                        |
+| goods_number    | int(11) NULL        | 商品数量                        |
+| goods_price     | decimal(10,2) NULL  | 商品价格                        |
+| goods_amount    | decimal(10,0) NULL  | 商品总价                        |
+| shipping_fee    | decimal(10,2) NULL  | 运费                          |
+| order_amount    | decimal(10,2) NULL  | 订单价格                        |
+| coupon_id       | bigint(50) NULL     | 优惠券ID                       |
+| coupon_paid     | decimal(10,2) NULL  | 优惠券                         |
+| money_paid      | decimal(10,2) NULL  | 已付金额                        |
+| pay_amount      | decimal(10,2) NULL  | 支付金额                        |
+| add_time        | timestamp NULL      | 创建时间                        |
+| confirm_time    | timestamp NULL      | 订单确认时间                      |
+| pay_time        | timestamp NULL      | 支付时间                        |
 
 ### 4）订单商品日志表
 
-| Field        | Type                 | Comment  |
-| ------------ | -------------------- | -------- |
-| goods_id     | int(11) NOT NULL     | 商品ID   |
-| order_id     | varchar(32) NOT NULL | 订单ID   |
-| goods_number | int(11) NULL         | 库存数量 |
-| log_time     | datetime NULL        | 记录时间 |
+| Field        | Type                 | Comment |
+| ------------ | -------------------- | ------- |
+| goods_id     | int(11) NOT NULL     | 商品ID    |
+| order_id     | varchar(32) NOT NULL | 订单ID    |
+| goods_number | int(11) NULL         | 库存数量    |
+| log_time     | datetime NULL        | 记录时间    |
 
 ### 5）用户表
 
-| Field         | Type                | Comment  |
-| ------------- | ------------------- | -------- |
-| user_id       | bigint(50) NOT NULL | 用户ID   |
-| user_name     | varchar(255) NULL   | 用户姓名 |
-| user_password | varchar(255) NULL   | 用户密码 |
-| user_mobile   | varchar(255) NULL   | 手机号   |
-| user_score    | int(11) NULL        | 积分     |
-| user_reg_time | timestamp NULL      | 注册时间 |
-| user_money    | decimal(10,0) NULL  | 用户余额 |
+| Field         | Type                | Comment |
+| ------------- | ------------------- | ------- |
+| user_id       | bigint(50) NOT NULL | 用户ID    |
+| user_name     | varchar(255) NULL   | 用户姓名    |
+| user_password | varchar(255) NULL   | 用户密码    |
+| user_mobile   | varchar(255) NULL   | 手机号     |
+| user_score    | int(11) NULL        | 积分      |
+| user_reg_time | timestamp NULL      | 注册时间    |
+| user_money    | decimal(10,0) NULL  | 用户余额    |
 
 ### 6）用户余额日志表
 
-| Field          | Type                | Comment                       |
-| -------------- | ------------------- | ----------------------------- |
-| user_id        | bigint(50) NOT NULL | 用户ID                        |
-| order_id       | bigint(50) NOT NULL | 订单ID                        |
+| Field          | Type                | Comment           |
+| -------------- | ------------------- | ----------------- |
+| user_id        | bigint(50) NOT NULL | 用户ID              |
+| order_id       | bigint(50) NOT NULL | 订单ID              |
 | money_log_type | int(1) NOT NULL     | 日志类型 1订单付款 2 订单退款 |
-| use_money      | decimal(10,2) NULL  | 操作金额                      |
-| create_time    | timestamp NULL      | 日志时间                      |
+| use_money      | decimal(10,2) NULL  | 操作金额              |
+| create_time    | timestamp NULL      | 日志时间              |
 
 ### 7）订单支付表
 
-| Field      | Type                | Comment            |
-| ---------- | ------------------- | ------------------ |
-| pay_id     | bigint(50) NOT NULL | 支付编号           |
-| order_id   | bigint(50) NULL     | 订单编号           |
-| pay_amount | decimal(10,2) NULL  | 支付金额           |
+| Field      | Type                | Comment     |
+| ---------- | ------------------- | ----------- |
+| pay_id     | bigint(50) NOT NULL | 支付编号        |
+| order_id   | bigint(50) NULL     | 订单编号        |
+| pay_amount | decimal(10,2) NULL  | 支付金额        |
 | is_paid    | int(1) NULL         | 是否已支付 1否 2是 |
 
 ### 8）MQ消息生产表
 
-| Field       | Type                  | Comment             |
-| ----------- | --------------------- | ------------------- |
-| id          | varchar(100) NOT NULL | 主键                |
-| group_name  | varchar(100) NULL     | 生产者组名          |
-| msg_topic   | varchar(100) NULL     | 消息主题            |
-| msg_tag     | varchar(100) NULL     | Tag                 |
-| msg_key     | varchar(100) NULL     | Key                 |
-| msg_body    | varchar(500) NULL     | 消息内容            |
+| Field       | Type                  | Comment      |
+| ----------- | --------------------- | ------------ |
+| id          | varchar(100) NOT NULL | 主键           |
+| group_name  | varchar(100) NULL     | 生产者组名        |
+| msg_topic   | varchar(100) NULL     | 消息主题         |
+| msg_tag     | varchar(100) NULL     | Tag          |
+| msg_key     | varchar(100) NULL     | Key          |
+| msg_body    | varchar(500) NULL     | 消息内容         |
 | msg_status  | int(1) NULL           | 0:未处理;1:已经处理 |
-| create_time | timestamp NOT NULL    | 记录时间            |
+| create_time | timestamp NOT NULL    | 记录时间         |
 
 ###9）MQ消息消费表
 
-| Field              | Type                  | Comment                          |
-| ------------------ | --------------------- | -------------------------------- |
-| msg_id             | varchar(50) NULL      | 消息ID                           |
-| group_name         | varchar(100) NOT NULL | 消费者组名                       |
-| msg_tag            | varchar(100) NOT NULL | Tag                              |
-| msg_key            | varchar(100) NOT NULL | Key                              |
-| msg_body           | varchar(500) NULL     | 消息体                           |
+| Field              | Type                  | Comment              |
+| ------------------ | --------------------- | -------------------- |
+| msg_id             | varchar(50) NULL      | 消息ID                 |
+| group_name         | varchar(100) NOT NULL | 消费者组名                |
+| msg_tag            | varchar(100) NOT NULL | Tag                  |
+| msg_key            | varchar(100) NOT NULL | Key                  |
+| msg_body           | varchar(500) NULL     | 消息体                  |
 | consumer_status    | int(1) NULL           | 0:正在处理;1:处理成功;2:处理失败 |
-| consumer_times     | int(1) NULL           | 消费次数                         |
-| consumer_timestamp | timestamp NULL        | 消费时间                         |
-| remark             | varchar(500) NULL     | 备注                             |
+| consumer_times     | int(1) NULL           | 消费次数                 |
+| consumer_timestamp | timestamp NULL        | 消费时间                 |
+| remark             | varchar(500) NULL     | 备注                   |
 
 ## 3.2 项目初始化
 
@@ -646,21 +644,21 @@ shop系统基于Maven进行项目管理
 ## 3.4 公共类介绍
 
 * ID生成器
-
+  
   IDWorker：Twitter雪花算法
 
 * 异常处理类
-
+  
   CustomerException：自定义异常类
-
+  
   CastException：异常抛出类
 
 * 常量类
-
+  
   ShopCode：系统状态类
 
 * 响应实体类
-
+  
   Result：封装响应状态和响应信息
 
 # 4. 下单业务
@@ -695,23 +693,23 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public Result confirmOrder(TradeOrder order) {
         //1.校验订单
-       
+
         //2.生成预订单
-       
+
         try {
             //3.扣减库存
-            
+
             //4.扣减优惠券
-           
+
             //5.使用余额
-           
+
             //6.确认订单
-            
+
             //7.返回成功状态
-           
+
         } catch (Exception e) {
             //1.确认订单失败,发送消息
-            
+
             //2.返回失败状态
         }
 
@@ -917,7 +915,7 @@ public Result changeCouponStatus(TradeCoupon coupon) {
         if (coupon == null || StringUtils.isEmpty(coupon.getCouponId())) {
             CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
         }
-		//更新优惠券状态为已使用
+        //更新优惠券状态为已使用
         couponMapper.updateByPrimaryKey(coupon);
         return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage());
     } catch (Exception e) {
@@ -981,7 +979,7 @@ public Result changeUserMoney(TradeUserMoneyLog userMoneyLog) {
            if (count > 0) {
                 CastException.cast(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY);
             }
-       	   //用户账户扣减余额
+              //用户账户扣减余额
            userMapper.reduceUserMoney(tradeUser);
        }
     //【退款操作】
@@ -1000,7 +998,7 @@ public Result changeUserMoney(TradeUserMoneyLog userMoneyLog) {
      if (count > 0) {
          CastException.cast(ShopCode.SHOP_USER_MONEY_REFUND_ALREADY);
      }
-     	//用户账户添加余额
+         //用户账户添加余额
         userMapper.addUserMoney(tradeUser);
     }
 
@@ -1401,7 +1399,7 @@ public class CancelMQListener implements RocketMQListener<MessageExt>{
         log.info("CancelOrderProcessor receive message:"+messageExt);
         CancelOrderMQ cancelOrderMQ = JSON.parseObject(body, CancelOrderMQ.class);
         TradeOrder order = orderService.findOne(cancelOrderMQ.getOrderId());
-		order.setOrderStatus(ShopCode.SHOP_ORDER_CANCEL.getCode());
+        order.setOrderStatus(ShopCode.SHOP_ORDER_CANCEL.getCode());
         orderService.changeOrderStatus(order);
         log.info("订单:["+order.getOrderId()+"]状态设置为取消");
         return order;
@@ -1490,7 +1488,7 @@ public Result createPayment(TradePay tradePay) {
 }
 ```
 
-## 5.2 支付回调 
+## 5.2 支付回调
 
 ### 5.2.1 流程分析
 
@@ -1597,9 +1595,7 @@ executorService.submit(new Runnable() {
 });
 ```
 
-
-
-### 5.2.3 
+### 5.2.3
 
 ### 处理消息
 
@@ -1634,7 +1630,7 @@ public class BaseConsumer {
         String tags = messageExt.getTags();
         String keys = messageExt.getKeys();
         OrderMQ orderMq = JSON.parseObject(body, OrderMQ.class);
-        
+
         //查询
         TradeOrder order = orderService.findOne(orderMq.getOrderId());
 
@@ -1750,50 +1746,50 @@ shop.pay.callbackPayment=/pay/callbackPayment
 
 ## 6.2 下单测试
 
- ```java
+```java
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ShopOrderWebApplication.class)
 @TestPropertySource("classpath:application.properties")
 public class OrderTest {
 
-    @Autowired
-    private RestTemplate restTemplate;
+   @Autowired
+   private RestTemplate restTemplate;
 
-    @Value("${shop.order.baseURI}")
-    private String baseURI;
+   @Value("${shop.order.baseURI}")
+   private String baseURI;
 
-    @Value("${shop.order.confirm}")
-    private String confirmOrderPath;
+   @Value("${shop.order.confirm}")
+   private String confirmOrderPath;
 
-    @Autowired
-    private IDWorker idWorker;
-   
-   /**
-     * 下单
-     */
-    @Test
-    public void confirmOrder(){
-        Long goodsId=XXXL;
-        Long userId=XXXL;
-        Long couponId=XXXL;
+   @Autowired
+   private IDWorker idWorker;
 
-        TradeOrder order = new TradeOrder();
-        order.setGoodsId(goodsId);
-        order.setUserId(userId);
-        order.setGoodsNumber(1);
-        order.setAddress("北京");
-        order.setGoodsPrice(new BigDecimal("5000"));
-        order.setOrderAmount(new BigDecimal("5000"));
-        order.setMoneyPaid(new BigDecimal("100"));
-        order.setCouponId(couponId);
-        order.setShippingFee(new BigDecimal(0));
+  /**
+    * 下单
+    */
+   @Test
+   public void confirmOrder(){
+       Long goodsId=XXXL;
+       Long userId=XXXL;
+       Long couponId=XXXL;
 
-        Result result = restTemplate.postForEntity(baseURI + confirmOrderPath, order, Result.class).getBody();
-        System.out.println(result);
-    }
+       TradeOrder order = new TradeOrder();
+       order.setGoodsId(goodsId);
+       order.setUserId(userId);
+       order.setGoodsNumber(1);
+       order.setAddress("北京");
+       order.setGoodsPrice(new BigDecimal("5000"));
+       order.setOrderAmount(new BigDecimal("5000"));
+       order.setMoneyPaid(new BigDecimal("100"));
+       order.setCouponId(couponId);
+       order.setShippingFee(new BigDecimal(0));
+
+       Result result = restTemplate.postForEntity(baseURI + confirmOrderPath, order, Result.class).getBody();
+       System.out.println(result);
+   }
 
 }
- ```
+```
 
 ## 6.3 支付测试
 
@@ -1832,7 +1828,7 @@ public class PayTest {
         Result result = restTemplate.postForEntity(baseURI + createPaymentPath, pay, Result.class).getBody();
         System.out.println(result);
     }
-   
+
     /**
      * 支付回调
      */
@@ -1849,4 +1845,3 @@ public class PayTest {
 
 }
 ```
-

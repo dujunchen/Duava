@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LeetcodeEditor">
+    <option name="projectConfig">
+      <map>
+        <entry key="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/[5]最长回文子串.java">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/doc/content/[5]最长回文子串.md" />
+              <option name="frontendQuestionId" value="leetcode.cn5" />
+              <option name="host" value="leetcode.cn" />
+              <option name="path" value="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/[5]最长回文子串.java" />
+              <option name="titleSlug" value="longest-palindromic-substring" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
+        <entry key="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/[面试题 04.02]最小高度树.java">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/doc/content/[面试题 04.02]最小高度树.md" />
+              <option name="frontendQuestionId" value="leetcode.cn面试题 04.02" />
+              <option name="host" value="leetcode.cn" />
+              <option name="path" value="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/[面试题 04.02]最小高度树.java" />
+              <option name="titleSlug" value="minimum-height-tree-lcci" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
+        <entry key="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/[面试题 08.11]硬币.java">
+          <value>
+            <LeetcodeEditor>
+              <option name="contentPath" value="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/doc/content/[面试题 08.11]硬币.md" />
+              <option name="frontendQuestionId" value="leetcode.cn面试题 08.11" />
+              <option name="host" value="leetcode.cn" />
+              <option name="path" value="/var/folders/cb/wzbmt6515s76r8pqyhtylqqw0000gn/T/leetcode/editor/cn/[面试题 08.11]硬币.java" />
+              <option name="titleSlug" value="coin-lcci" />
+            </LeetcodeEditor>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

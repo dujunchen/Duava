@@ -32,7 +32,7 @@ public class CollectionDemo {
     public static void main(String[] args) {
         List list = new ArrayList();
         list.add("1");
-      	//其余代码都没有修改，就在list.add("3");之前添加这一行
+          //其余代码都没有修改，就在list.add("3");之前添加这一行
         list.add("2");
         list.add("3");
         list.add("5");
@@ -61,7 +61,7 @@ public class CollectionDemo {
         list.add("1");
         list.add("2");
         list.add("3");
-      	//其余代码都没有修改，就在list.add("3")之后添加这一行
+          //其余代码都没有修改，就在list.add("3")之后添加这一行
         list.add("4");
         list.add("5");
         for (Object o : list) {
@@ -91,7 +91,7 @@ public class CollectionDemo {
 /**
  * This exception may be thrown by methods that have detected concurrent
  * modification of an object when such modification is not permissible.
- 
+
  * For example, it is not generally permissible for one thread to modify a Collection
  * while another thread is iterating over it.Some Iterator
  * implementations (including those of all the general purpose collection implementations
@@ -99,7 +99,7 @@ public class CollectionDemo {
  * detected.  Iterators that do this are known as <i>fail-fast</i> iterators,
  * as they fail quickly and cleanly, rather that risking arbitrary,
  * non-deterministic behavior at an undetermined time in the future.
- 
+
  * Note that this exception does not always indicate that an object has
  * been concurrently modified by a <i>different</i> thread.  If a single
  * thread issues a sequence of method invocations that violates the
@@ -110,11 +110,11 @@ public class CollectionDemo {
 */
 ```
 
-​		这一大段话大概意思是说，这个异常可能会在检测到一个对象被做了不合法的并发修改，比如jdk自带的集合通常会内置一个fail-fast类型的迭代器，当集合检测到这类不合法的并发修改，就会抛出该异常。所谓的fail-fast，顾名思义，就是当检测到有异常时，越快抛出异常结束越好，以免将来带来未知的隐患。另外这段话还说了，这个异常并不是像名字那样只会出现在多线程并发修改的情况下，在单线程下也会出现。
+​        这一大段话大概意思是说，这个异常可能会在检测到一个对象被做了不合法的并发修改，比如jdk自带的集合通常会内置一个fail-fast类型的迭代器，当集合检测到这类不合法的并发修改，就会抛出该异常。所谓的fail-fast，顾名思义，就是当检测到有异常时，越快抛出异常结束越好，以免将来带来未知的隐患。另外这段话还说了，这个异常并不是像名字那样只会出现在多线程并发修改的情况下，在单线程下也会出现。
 
-​		然并卵，看了半天文档还是一脸懵逼。这到底说的是什么鬼？
+​        然并卵，看了半天文档还是一脸懵逼。这到底说的是什么鬼？
 
-​		没关系，控制台除了抛出这个异常，还提示了具体的异常抛出的位置，在`java.util.ArrayList$Itr.next()`内部的`checkForComodification()`方法。定位到ArrayList源码指定位置，如下图标识红框位置：
+​        没关系，控制台除了抛出这个异常，还提示了具体的异常抛出的位置，在`java.util.ArrayList$Itr.next()`内部的`checkForComodification()`方法。定位到ArrayList源码指定位置，如下图标识红框位置：
 
 ![sca-4](assets/sca-4.jpg)
 
@@ -154,6 +154,7 @@ protected transient int modCount = 0;
 ![sca-9](assets/sca-9.jpg)
 
 ### expectedModCount
+
 再来看看expectedModCount。expectedModCount是定义在`java.util.ArrayList$Itr`里面的属性，并且会将ArrayList的modCount的值作为其初始化值。
 
 ![sca-6](assets/sca-6.jpg)
@@ -302,4 +303,4 @@ public class CollectionDemo {
 
 - **今天的技术分享就分享到这里，感谢您百忙抽出这么长时间阅读我的文章😊。**
 - **另外，我的笔记还有文章也会在我的掘金社区专题上更新。**  
-我的掘金主页：[https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts](https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts)
+  我的掘金主页：[https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts](https://juejin.im/user/5cc3e604e51d456e7b3720fd/posts)

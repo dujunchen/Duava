@@ -9,15 +9,13 @@
 #### BeanDefinitionReader
 
 - bean定义信息加载，主要有XmlBeanDefinitionReader实现。通过XmlBeanDefinitionReader的loadBeanDefinitions()方法解析加载xml的bean信息。主要逻辑有：
-
+  
   - 将Resource包装为EncodedResource
   - 检测排除循环import的情况
   - 使用DefaultDocumentLoader加载XML信息
   - 使用DefaultBeanDefinitionDocumentReader注册bean信息
   - 使用BeanDefinitionParserDelegate解析获得BeanDefinitionHolder（BeanDefinition封装类）
   - 将BeanDefinitionHolder中的BeanDefinition和aliases注册到BeanDefinitionRegistry（BeanFactory）中
-
-
 
 #### BeanFactory
 
@@ -35,19 +33,31 @@
 ### Bean创建流程
 
 - 处理bean的name，去除FactoryBean前缀和处理别名
+
 - 先查询单例缓存（singletonObjects属性，使用ConcurrentHashMap存储）中看是否有该bean，如果已经存在，则直接返回。（有可能是直接返回实例本身，也有可能是返回FactoryBean的getObject()返回结果）
+
 - 如果存在parentBeanFactory，则调用parentBeanFactory.getBean()
+
 - 标记该bean为已创建或者正在创建中，优化缓存
+
 - 获取RootBeanDefinition，并检查是否是abstract的，如果是，则抛出异常
 
 - 如果有depends on的bean，则先注册并初始化依赖的bean
+
 - 根据配置的scope属性，确定当前创建bean的类型（singleton还是prototype），然后开始创建bean。无论是singleton还是prototype，底层创建的过程大致相同，都是先后调用createBean()和getObjectForBeanInstance()获得。不过，如果是singleton，会调用getSingleton()获取一个singleton实例，具体逻辑有：先从singletonObjects中查找是否存在该实例，如果已经存在，直接返回。否则调用createBean()创建bean实例，并在创建成功后调用addSingleton()将其缓存到singletonObjects中。
+
 - createBean()的主要逻辑：判断是否注册有InstantiationAwareBeanPostProcessors，如果存在，调用其postProcessBeforeInstantiation()和postProcessAfterInitialization()方法处理bean，如果bean!=null，则直接返回该bean实例，而并不会继续往下执行流程。否则执行doCreateBean()方法创建bean实例。doCreateBean()方法主要逻辑：如果存在instanceSupplier，则通过instanceSupplier获取bean实例。如果存在factory method，则通过factory method创建bean实例，默认是反射调用无参构造器创建对象，并且将bean封装成BeanWrapper
+
 - 如果存在MergedBeanDefinitionPostProcessor，调用其postProcessMergedBeanDefinition()修改merged bean definition
+
 - 调用populateBean()对bean对象装配属性，根据注入方式（按照name还是type还是构造器注入）注入相关属性，同时对属性值作相应的类型转换
+
 - 调用initializeBean()对bean进行初始化，主要逻辑：对于实现了Aware接口的bean，调用Aware接口中相应的方法。获取所有注册的BeanPostProcessor并调用其postProcessBeforeInitialization方法。如果实现InitializingBean接口，则调用其afterPropertiesSet()方法。如果定义init method，则通过反射调用自定义的init method。获取所有注册的BeanPostProcessor并调用其postProcessAfterInitialization方法
+
 - 对于实现了DestructionAwareBeanPostProcessors，或者DisposableBean或者有自定义destroy method，将当前bean注册到Disposable bean的缓存中，当bean被销毁后将会回调
+
 - getObjectForBeanInstance()的主要逻辑：如果bean name是以&开头，则返回对应的FactoryBean实例本身。如果该bean不是FactoryBean类型，则直接返回，否则通过调用FactoryBean的getObject()方法返回实例
+
 - 对于getBean方法传入bean类型的参数的，如果类型不匹配，会调用TypeConverter（TypeConverter又会委托给ConversionService，ConversionService又会委托给GenericConverter）进行类型转换
 
 ## AOP
@@ -90,7 +100,7 @@
 
 - FatJar文件结构
   - BOOT-INF
-    - classes	
+    - classes    
       - 项目中的class文件
     - lib
       - 项目中依赖的jar包
@@ -118,7 +128,7 @@
 - 向bean Factory 注册springApplicationArguments和springBootBanner实例，设置allowBeanDefinitionOverriding属性，加载其它一些自定义的外部资源
 - 通知contextLoaded()事件
 - refresh 容器并注册JVM关闭钩子函数，在refresh的时候，如果是Web应用，ServletWebServerApplicationContext重写了onRefresh()方法，里面会通过createWebServer()创建Web容器，主要逻辑：通过调用ServletWebServerFactory的getWebServer()方法创建Web容器，以Tomcat为例，TomcatServletWebServerFactory的getWebServer()-->prepareContext()-->configureContext()中会创建TomcatStarter对象，并且将其设置给Tomcat的Context。而TomcatStarter实现了Servlet3.0规范的ServletContainerInitializer，所以当Servlet3.0容器启动时，会自动调用其onStartup完成ServletContext的初始化
--  通知started()事件
+- 通知started()事件
 - 获取所有的ApplicationRunner和CommandLineRunner，并调用其run()方法
 - 通知running()事件
 - ConfigurableApplicationContext创建完毕并返回
@@ -188,9 +198,6 @@
 - LoadBalancerClient是Ribbon实现负载均衡的核心类。LoadBalancerClient具体交给ILoadBalancer来处理，ILoadBalancer通过配置IRule和IPing，向EurekaClient获取注册列表，默认每十秒向Eureka Client发送一个ping，进而检查是否需要更新服务的注册列表。得到注册列表后，ILoadBalancer根据IRule策略进行负载均衡。
 - 使用RestTemplate增加@LoadBalance注解后，使用RestTemplate的拦截器（LoadBalancerInterceptor），在请求具体达到目标前，使用Ribbon的LoadBalancerClient去处理，从而实现负载均衡。
 
-
-
 ### Feign
 
 #### 实现原理
-

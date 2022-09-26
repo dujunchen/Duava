@@ -22,11 +22,10 @@ Apache下开源的另外一款MQ—ActiveMQ（默认采用的KahaDB做消息存�
 ![](img/MySQL.png)
 
 - 文件系统
-
+  
   目前业界较为常用的几款产品（RocketMQ/Kafka/RabbitMQ）均采用的是消息刷盘至所部署虚拟机/物理机的文件系统来做持久化（刷盘一般可以分为异步刷盘和同步刷盘两种模式）。消息刷盘为消息存储提供了一种高效率、高可靠性和高性能的数据持久化方式。除非部署MQ机器本身或是本地磁盘挂了，否则一般是不会出现无法持久化的故障问题。
-
+  
   ![](img/磁盘.png)
-
 
 ###1.1.2 性能对比
 
@@ -192,15 +191,15 @@ Producer端，每个实例在发消息的时候，默认会轮询所有的messag
 消息队列 RocketMQ 默认允许每条消息最多重试 16 次，每次重试的间隔时间如下：
 
 | 第几次重试 | 与上次重试的间隔时间 | 第几次重试 | 与上次重试的间隔时间 |
-| :--------: | :------------------: | :--------: | :------------------: |
-|     1      |        10 秒         |     9      |        7 分钟        |
-|     2      |        30 秒         |     10     |        8 分钟        |
-|     3      |        1 分钟        |     11     |        9 分钟        |
-|     4      |        2 分钟        |     12     |       10 分钟        |
-|     5      |        3 分钟        |     13     |       20 分钟        |
-|     6      |        4 分钟        |     14     |       30 分钟        |
-|     7      |        5 分钟        |     15     |        1 小时        |
-|     8      |        6 分钟        |     16     |        2 小时        |
+|:-----:|:----------:|:-----:|:----------:|
+| 1     | 10 秒       | 9     | 7 分钟       |
+| 2     | 30 秒       | 10    | 8 分钟       |
+| 3     | 1 分钟       | 11    | 9 分钟       |
+| 4     | 2 分钟       | 12    | 10 分钟      |
+| 5     | 3 分钟       | 13    | 20 分钟      |
+| 6     | 4 分钟       | 14    | 30 分钟      |
+| 7     | 5 分钟       | 15    | 1 小时       |
+| 8     | 6 分钟       | 16    | 2 小时       |
 
 如果消息重试 16 次后仍然失败，消息将不再投递。如果严格按照上述重试时间间隔计算，某条消息在一直消费失败的前提下，将会在接下来的 4 小时 46 分钟之内进行 16 次重试，超过这个时间范围消息将不再重试投递。
 
@@ -329,15 +328,15 @@ public class MessageListenerImpl implements MessageListener {
 在互联网应用中，尤其在网络不稳定的情况下，消息队列 RocketMQ 的消息有可能会出现重复，这个重复简单可以概括为以下情况：
 
 - 发送时消息重复
-
+  
   当一条消息已被成功发送到服务端并完成持久化，此时出现了网络闪断或者客户端宕机，导致服务端对客户端应答失败。 如果此时生产者意识到消息发送失败并尝试再次发送消息，消费者后续会收到两条内容相同并且 Message ID 也相同的消息。
 
 - 投递时消息重复
-
+  
   消息消费的场景下，消息已投递到消费者并完成业务处理，当客户端给服务端反馈应答的时候网络闪断。 为了保证消息至少被消费一次，消息队列 RocketMQ 的服务端将在网络恢复后再次尝试投递之前已被处理过的消息，消费者后续会收到两条内容相同并且 Message ID 也相同的消息。
 
 - 负载均衡时消息重复（包括但不限于网络抖动、Broker 重启以及订阅方应用重启）
-
+  
   当消息队列 RocketMQ 的 Broker 或客户端重启、扩容或缩容时，会触发 Rebalance，此时消费者可能会收到重复消息。
 
 ### 1.6.2 处理方式
@@ -382,21 +381,35 @@ consumer.subscribe("ons_test", "*", new MessageListener() {
 * broker: broker 模块（broke 启动进程） 
 
 * client ：消息客户端，包含消息生产者、消息消费者相关类 
+
 * common ：公共包 
+
 * dev ：开发者信息（非源代码） 
+
 * distribution ：部署实例文件夹（非源代码） 
+
 * example: RocketMQ 例代码 
+
 * filter ：消息过滤相关基础类
 
 * filtersrv：消息过滤服务器实现相关类（Filter启动进程）
+
 * logappender：日志实现相关类
+
 * namesrv：NameServer实现相关类（NameServer启动进程）
+
 * openmessageing：消息开放标准
+
 * remoting：远程通信模块，给予Netty
+
 * srcutil：服务工具类
+
 * store：消息存储实现相关类
+
 * style：checkstyle相关实现
+
 * test：测试相关类
+
 * tools：工具类，监控命令相关实现类
 
 ###2.1.2 导入IDEA
@@ -428,7 +441,7 @@ clean install -Dmaven.test.skip=true
 ![](img/源码5.png)
 
 * 重新启动
-
+  
   控制台打印结果
 
 ```sh
@@ -505,8 +518,6 @@ consumer.setNamesrvAddr("127.0.0.1:9876");
 NameServer就是为了解决以上问题设计的。
 
 ![](img/RocketMQ角色.jpg)
-
-
 
 Broker消息服务器在启动的时向所有NameServer注册，消息生产者（Producer）在发送消息时之前先从NameServer获取Broker服务器地址列表，然后根据负载均衡算法从列表中选择一台服务器进行发送。NameServer与每台Broker保持长连接，并间隔30S检测Broker是否存活，如果检测到Broker宕机，则从路由注册表中删除。但是路由变化不会马上通知消息生产者。这样设计的目的是为了降低NameServer实现的复杂度，在消息发送端提供容错机制保证消息发送的可用性。
 
@@ -616,11 +627,11 @@ private boolean useEpollNativeSelector = false;
 
 ```java
 public boolean initialize() {
-	//加载KV配置
+    //加载KV配置
     this.kvConfigManager.load();
-	//创建NettyServer网络处理对象
+    //创建NettyServer网络处理对象
     this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
-	//开启定时任务:每隔10s扫描一次Broker,移除不活跃的Broker
+    //开启定时任务:每隔10s扫描一次Broker,移除不活跃的Broker
     this.remotingExecutor =
         Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
     this.registerProcessor();
@@ -630,8 +641,8 @@ public boolean initialize() {
             NamesrvController.this.routeInfoManager.scanNotActiveBroker();
         }
     }, 5, 10, TimeUnit.SECONDS);
-	//开启定时任务:每隔10min打印一次KV配置
-	this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+    //开启定时任务:每隔10min打印一次KV配置
+    this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
         @Override
         public void run() {
@@ -720,7 +731,6 @@ this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
     }
 }, 1000 * 10, Math.max(10000, Math.min(brokerConfig.getRegisterNameServerPeriod(), 60000)), 
                                                   TimeUnit.MILLISECONDS);
-
 ```
 
 ***代码：BrokerOuterAPI#registerBrokerAll***
@@ -739,7 +749,7 @@ if (nameServerAddressList != null && nameServerAddressList.size() > 0) {
     requestHeader.setClusterName(clusterName);
     requestHeader.setHaServerAddr(haServerAddr);
     requestHeader.setCompressed(compressed);
-	//封装请求体
+    //封装请求体
     RegisterBrokerBody requestBody = new RegisterBrokerBody();
     requestBody.setTopicConfigSerializeWrapper(topicConfigWrapper);
     requestBody.setFilterServerList(filterServerList);
@@ -800,13 +810,13 @@ RemotingCommand response = this.remotingClient.invokeSync(namesrvAddr, request, 
 ```java
 //判断是注册Broker信息
 case RequestCode.REGISTER_BROKER:
-	Version brokerVersion = MQVersion.value2Version(request.getVersion());
-	if (brokerVersion.ordinal() >= MQVersion.Version.V3_0_11.ordinal()) {
-	    return this.registerBrokerWithFilterServer(ctx, request);
-	} else {
+    Version brokerVersion = MQVersion.value2Version(request.getVersion());
+    if (brokerVersion.ordinal() >= MQVersion.Version.V3_0_11.ordinal()) {
+        return this.registerBrokerWithFilterServer(ctx, request);
+    } else {
         //注册Broker信息
-	    return this.registerBroker(ctx, request);
-	}
+        return this.registerBroker(ctx, request);
+    }
 ```
 
 ***代码：DefaultRequestProcessor#registerBroker***
@@ -882,38 +892,38 @@ if (null != topicConfigWrapper && MixAll.MASTER_ID == brokerId) {
 ```java
 private void createAndUpdateQueueData(final String brokerName, final TopicConfig topicConfig) {
     //创建QueueData
-	QueueData queueData = new QueueData();
-	queueData.setBrokerName(brokerName);
-	queueData.setWriteQueueNums(topicConfig.getWriteQueueNums());
-	queueData.setReadQueueNums(topicConfig.getReadQueueNums());
-	queueData.setPerm(topicConfig.getPerm());
-	queueData.setTopicSynFlag(topicConfig.getTopicSysFlag());
-	//获得topicQueueTable中队列集合
-	List<QueueData> queueDataList = this.topicQueueTable.get(topicConfig.getTopicName());
+    QueueData queueData = new QueueData();
+    queueData.setBrokerName(brokerName);
+    queueData.setWriteQueueNums(topicConfig.getWriteQueueNums());
+    queueData.setReadQueueNums(topicConfig.getReadQueueNums());
+    queueData.setPerm(topicConfig.getPerm());
+    queueData.setTopicSynFlag(topicConfig.getTopicSysFlag());
+    //获得topicQueueTable中队列集合
+    List<QueueData> queueDataList = this.topicQueueTable.get(topicConfig.getTopicName());
     //topicQueueTable为空,则直接添加queueData到队列集合
-	if (null == queueDataList) {
-	    queueDataList = new LinkedList<QueueData>();
-	    queueDataList.add(queueData);
-	    this.topicQueueTable.put(topicConfig.getTopicName(), queueDataList);
-	    log.info("new topic registered, {} {}", topicConfig.getTopicName(), queueData);
-	} else {
+    if (null == queueDataList) {
+        queueDataList = new LinkedList<QueueData>();
+        queueDataList.add(queueData);
+        this.topicQueueTable.put(topicConfig.getTopicName(), queueDataList);
+        log.info("new topic registered, {} {}", topicConfig.getTopicName(), queueData);
+    } else {
         //判断是否是新的队列
-	    boolean addNewOne = true;
-	    Iterator<QueueData> it = queueDataList.iterator();
-	    while (it.hasNext()) {
-	        QueueData qd = it.next();
+        boolean addNewOne = true;
+        Iterator<QueueData> it = queueDataList.iterator();
+        while (it.hasNext()) {
+            QueueData qd = it.next();
             //如果brokerName相同,代表不是新的队列
-	        if (qd.getBrokerName().equals(brokerName)) {
-	            if (qd.equals(queueData)) {
-	                addNewOne = false;
-	        } else {
-	                    log.info("topic changed, {} OLD: {} NEW: {}", topicConfig.getTopicName(), qd,
-	                        queueData);
-	                    it.remove();
-	                }
-	            }
-	        }
-		//如果是新的队列,则添加队列到queueDataList
+            if (qd.getBrokerName().equals(brokerName)) {
+                if (qd.equals(queueData)) {
+                    addNewOne = false;
+            } else {
+                        log.info("topic changed, {} OLD: {} NEW: {}", topicConfig.getTopicName(), qd,
+                            queueData);
+                        it.remove();
+                    }
+                }
+            }
+        //如果是新的队列,则添加队列到queueDataList
         if (addNewOne) {
             queueDataList.add(queueData);
         }
@@ -1033,7 +1043,7 @@ while (itBrokerAddrTable.hasNext() && (null == brokerNameFound)) {
             break;
         }
     }
-	//如果当前主题只包含待移除的broker,则移除该topic
+    //如果当前主题只包含待移除的broker,则移除该topic
     if (brokerData.getBrokerAddrs().isEmpty()) {
         removeBrokerName = true;
         itBrokerAddrTable.remove();
@@ -1085,7 +1095,7 @@ if (removeBrokerName) {
         String topic = entry.getKey();
         //队列集合
         List<QueueData> queueDataList = entry.getValue();
-		//遍历该主题队列
+        //遍历该主题队列
         Iterator<QueueData> itQueueData = queueDataList.iterator();
         while (itQueueData.hasNext()) {
             //从队列中移除为活跃broker信息
@@ -1096,7 +1106,7 @@ if (removeBrokerName) {
                     topic, queueData);
             }
         }
-		//如果该topic的队列为空,则移除该topic
+        //如果该topic的队列为空,则移除该topic
         if (queueDataList.isEmpty()) {
             itTopicQueueTable.remove();
             log.info("remove topic[{}] all queue, from topicQueueTable, because channel destroyed",
@@ -1125,9 +1135,9 @@ public RemotingCommand getRouteInfoByTopic(ChannelHandlerContext ctx,
     final RemotingCommand response = RemotingCommand.createResponseCommand(null);
     final GetRouteInfoRequestHeader requestHeader =
         (GetRouteInfoRequestHeader) request.decodeCommandCustomHeader(GetRouteInfoRequestHeader.class);
-	//调用RouteInfoManager的方法,从路由表topicQueueTable、brokerAddrTable、filterServerTable中分别填充TopicRouteData的List<QueueData>、List<BrokerData>、filterServer
+    //调用RouteInfoManager的方法,从路由表topicQueueTable、brokerAddrTable、filterServerTable中分别填充TopicRouteData的List<QueueData>、List<BrokerData>、filterServer
     TopicRouteData topicRouteData = this.namesrvController.getRouteInfoManager().pickupTopicRouteData(requestHeader.getTopic());
-	//如果找到主题对应你的路由信息并且该主题为顺序消息，则从NameServer KVConfig中获取关于顺序消息相关的配置填充路由信息
+    //如果找到主题对应你的路由信息并且该主题为顺序消息，则从NameServer KVConfig中获取关于顺序消息相关的配置填充路由信息
     if (topicRouteData != null) {
         if (this.namesrvController.getNamesrvConfig().isOrderMessageEnable()) {
             String orderTopicConf =
@@ -1306,13 +1316,13 @@ if (!this.defaultMQProducer.getProducerGroup().equals(MixAll.CLIENT_INNER_PRODUC
 this.mQClientFactory = MQClientManager.getInstance().getAndCreateMQClientInstance(this.defaultMQProducer, rpcHook);
 ```
 
->整个JVM中只存在一个MQClientManager实例，维护一个MQClientInstance缓存表
->
->ConcurrentMap<String/* clientId */, MQClientInstance> factoryTable = new ConcurrentHashMap<String,MQClientInstance>();
->
->同一个clientId只会创建一个MQClientInstance。
->
->MQClientInstance封装了RocketMQ网络处理API，是消息生产者和消息消费者与NameServer、Broker打交道的网络通道
+> 整个JVM中只存在一个MQClientManager实例，维护一个MQClientInstance缓存表
+> 
+> ConcurrentMap<String/* clientId */, MQClientInstance> factoryTable = new ConcurrentHashMap<String,MQClientInstance>();
+> 
+> 同一个clientId只会创建一个MQClientInstance。
+> 
+> MQClientInstance封装了RocketMQ网络处理API，是消息生产者和消息消费者与NameServer、Broker打交道的网络通道
 
 ***代码：MQClientManager#getAndCreateMQClientInstance***
 
@@ -1400,7 +1410,7 @@ public static void checkMessage(Message msg, DefaultMQProducer defaultMQProducer
     }
     // 校验主题
     Validators.checkTopic(msg.getTopic());
-		
+
     // 校验消息体
     if (null == msg.getBody()) {
         throw new MQClientException(ResponseCode.MESSAGE_ILLEGAL, "the message body is null");
@@ -1449,9 +1459,9 @@ private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
 
 ```java
 public class TopicPublishInfo {
-    private boolean orderTopic = false;	//是否是顺序消息
+    private boolean orderTopic = false;    //是否是顺序消息
     private boolean haveTopicRouterInfo = false; 
-    private List<MessageQueue> messageQueueList = new ArrayList<MessageQueue>();	//该主题消息队列
+    private List<MessageQueue> messageQueueList = new ArrayList<MessageQueue>();    //该主题消息队列
     private volatile ThreadLocalIndex sendWhichQueue = new ThreadLocalIndex();//每选择一次消息队列,该值+1
     private TopicRouteData topicRouteData;//关联Topic路由元信息
 }
@@ -1515,11 +1525,11 @@ if (changed) {
 
 ```java
 public static TopicPublishInfo topicRouteData2TopicPublishInfo(final String topic, final TopicRouteData route) {
-    	//创建TopicPublishInfo对象
+        //创建TopicPublishInfo对象
         TopicPublishInfo info = new TopicPublishInfo();
-    	//关联topicRoute
+        //关联topicRoute
         info.setTopicRouteData(route);
-    	//顺序消息,更新TopicPublishInfo
+        //顺序消息,更新TopicPublishInfo
         if (route.getOrderTopicConf() != null && route.getOrderTopicConf().length() > 0) {
             String[] brokers = route.getOrderTopicConf().split(";");
             for (String broker : brokers) {
@@ -1557,7 +1567,7 @@ public static TopicPublishInfo topicRouteData2TopicPublishInfo(final String topi
                 if (!brokerData.getBrokerAddrs().containsKey(MixAll.MASTER_ID)) {
                     continue;
                 }
-				//封装TopicPublishInfo写队列
+                //封装TopicPublishInfo写队列
                 for (int i = 0; i < qd.getWriteQueueNums(); i++) {
                     MessageQueue mq = new MessageQueue(topic, qd.getBrokerName(), i);
                     info.getMessageQueueList().add(mq);
@@ -1567,7 +1577,7 @@ public static TopicPublishInfo topicRouteData2TopicPublishInfo(final String topi
 
         info.setOrderTopic(false);
     }
-	//返回TopicPublishInfo对象
+    //返回TopicPublishInfo对象
     return info;
 }
 ```
@@ -1642,7 +1652,7 @@ public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final S
                         return mq;
                 }
             }
-			//从规避的Broker中选择一个可用的Broker
+            //从规避的Broker中选择一个可用的Broker
             final String notBestBroker = latencyFaultTolerance.pickOneAtLeast();
             //获得Broker的写队列集合
             int writeQueueNums = tpInfo.getQueueIdByBroker(notBestBroker);
@@ -1676,11 +1686,11 @@ public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final S
 public interface LatencyFaultTolerance<T> {
     //更新失败条目
     void updateFaultItem(final T name, final long currentLatency, final long notAvailableDuration);
-	//判断Broker是否可用
+    //判断Broker是否可用
     boolean isAvailable(final T name);
-	//移除Fault条目
+    //移除Fault条目
     void remove(final T name);
-	//尝试从规避的Broker中选择一个可用的Broker
+    //尝试从规避的Broker中选择一个可用的Broker
     T pickOneAtLeast();
 }
 ```
@@ -1703,9 +1713,9 @@ class FaultItem implements Comparable<FaultItem> {
 ```java
 public class MQFaultStrategy {
    //根据currentLatency本地消息发送延迟,从latencyMax尾部向前找到第一个比currentLatency小的索引,如果没有找到,返回0
-	private long[] latencyMax = {50L, 100L, 550L, 1000L, 2000L, 3000L, 15000L};
+    private long[] latencyMax = {50L, 100L, 550L, 1000L, 2000L, 3000L, 15000L};
     //根据这个索引从notAvailableDuration取出对应的时间,在该时长内,Broker设置为不可用
-	private long[] notAvailableDuration = {0L, 0L, 30000L, 60000L, 120000L, 180000L, 600000L};
+    private long[] notAvailableDuration = {0L, 0L, 30000L, 60000L, 120000L, 180000L, 600000L};
 }
 ```
 
@@ -1794,12 +1804,12 @@ public void updateFaultItem(final String name, final long currentLatency, final 
 
 ```java
 private SendResult sendKernelImpl(
-    final Message msg,	//待发送消息
-    final MessageQueue mq,	//消息发送队列
-    final CommunicationMode communicationMode,		//消息发送内模式
-    final SendCallback sendCallback,	pp	//异步消息回调函数
-    final TopicPublishInfo topicPublishInfo,	//主题路由信息
-    final long timeout	//超时时间
+    final Message msg,    //待发送消息
+    final MessageQueue mq,    //消息发送队列
+    final CommunicationMode communicationMode,        //消息发送内模式
+    final SendCallback sendCallback,    pp    //异步消息回调函数
+    final TopicPublishInfo topicPublishInfo,    //主题路由信息
+    final long timeout    //超时时间
     )
 ```
 
@@ -1920,7 +1930,7 @@ if (requestHeader.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
 ```
 
 ```java
-case ASYNC:		//异步发送
+case ASYNC:        //异步发送
     Message tmpMessage = msg;
     boolean messageCloned = false;
     if (msgBodyCompressed) {
@@ -1941,26 +1951,26 @@ case ASYNC:		//异步发送
                                                     this.defaultMQProducer.getNamespace()));
     }
 
-		long costTimeAsync = System.currentTimeMillis() - beginStartTime;
-		if (timeout < costTimeAsync) {
-		    throw new RemotingTooMuchRequestException("sendKernelImpl call timeout");
-		}
-		sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
-        			brokerAddr,
-        			mq.getBrokerName(),
-        			tmpMessage,
-        			requestHeader,
-        			timeout - costTimeAsync,
-        			communicationMode,
-        			sendCallback,
-        			topicPublishInfo,
-        			this.mQClientFactory,
-        			this.defaultMQProducer.getRetryTimesWhenSendAsyncFailed(),
-        			context,
-        			this);
-    	break;
+        long costTimeAsync = System.currentTimeMillis() - beginStartTime;
+        if (timeout < costTimeAsync) {
+            throw new RemotingTooMuchRequestException("sendKernelImpl call timeout");
+        }
+        sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
+                    brokerAddr,
+                    mq.getBrokerName(),
+                    tmpMessage,
+                    requestHeader,
+                    timeout - costTimeAsync,
+                    communicationMode,
+                    sendCallback,
+                    topicPublishInfo,
+                    this.mQClientFactory,
+                    this.defaultMQProducer.getRetryTimesWhenSendAsyncFailed(),
+                    context,
+                    this);
+        break;
 case ONEWAY:
-case SYNC:		//同步发送
+case SYNC:        //同步发送
     long costTimeSync = System.currentTimeMillis() - beginStartTime;
         if (timeout < costTimeSync) {
             throw new RemotingTooMuchRequestException("sendKernelImpl call timeout");
@@ -2039,24 +2049,24 @@ private MessageBatch batch(Collection<Message> msgs) throws MQClientException {
 ![](img/DefaultMessageStore.png)
 
 ```java
-private final MessageStoreConfig messageStoreConfig;	//消息配置属性
-private final CommitLog commitLog;		//CommitLog文件存储的实现类
-private final ConcurrentMap<String/* topic */, ConcurrentMap<Integer/* queueId */, ConsumeQueue>> consumeQueueTable;	//消息队列存储缓存表,按照消息主题分组
-private final FlushConsumeQueueService flushConsumeQueueService;	//消息队列文件刷盘线程
-private final CleanCommitLogService cleanCommitLogService;	//清除CommitLog文件服务
-private final CleanConsumeQueueService cleanConsumeQueueService;	//清除ConsumerQueue队列文件服务
-private final IndexService indexService;	//索引实现类
-private final AllocateMappedFileService allocateMappedFileService;	//MappedFile分配服务
+private final MessageStoreConfig messageStoreConfig;    //消息配置属性
+private final CommitLog commitLog;        //CommitLog文件存储的实现类
+private final ConcurrentMap<String/* topic */, ConcurrentMap<Integer/* queueId */, ConsumeQueue>> consumeQueueTable;    //消息队列存储缓存表,按照消息主题分组
+private final FlushConsumeQueueService flushConsumeQueueService;    //消息队列文件刷盘线程
+private final CleanCommitLogService cleanCommitLogService;    //清除CommitLog文件服务
+private final CleanConsumeQueueService cleanConsumeQueueService;    //清除ConsumerQueue队列文件服务
+private final IndexService indexService;    //索引实现类
+private final AllocateMappedFileService allocateMappedFileService;    //MappedFile分配服务
 private final ReputMessageService reputMessageService;//CommitLog消息分发,根据CommitLog文件构建ConsumerQueue、IndexFile文件
-private final HAService haService;	//存储HA机制
-private final ScheduleMessageService scheduleMessageService;	//消息服务调度线程
-private final StoreStatsService storeStatsService;	//消息存储服务
-private final TransientStorePool transientStorePool;	//消息堆外内存缓存
-private final BrokerStatsManager brokerStatsManager;	//Broker状态管理器
-private final MessageArrivingListener messageArrivingListener;	//消息拉取长轮询模式消息达到监听器
-private final BrokerConfig brokerConfig;	//Broker配置类
-private StoreCheckpoint storeCheckpoint;	//文件刷盘监测点
-private final LinkedList<CommitLogDispatcher> dispatcherList;	//CommitLog文件转发请求
+private final HAService haService;    //存储HA机制
+private final ScheduleMessageService scheduleMessageService;    //消息服务调度线程
+private final StoreStatsService storeStatsService;    //消息存储服务
+private final TransientStorePool transientStorePool;    //消息堆外内存缓存
+private final BrokerStatsManager brokerStatsManager;    //Broker状态管理器
+private final MessageArrivingListener messageArrivingListener;    //消息拉取长轮询模式消息达到监听器
+private final BrokerConfig brokerConfig;    //Broker配置类
+private StoreCheckpoint storeCheckpoint;    //文件刷盘监测点
+private final LinkedList<CommitLogDispatcher> dispatcherList;    //CommitLog文件转发请求
 ```
 
 ### 2.4.2 消息存储流程
@@ -2079,7 +2089,7 @@ if (BrokerRole.SLAVE == this.messageStoreConfig.getBrokerRole()) {
 //判断当前写入状态如果是正在写入,则不能继续
 if (!this.runningFlags.isWriteable()) {
         long value = this.printTimes.getAndIncrement();
-    	return new PutMessageResult(PutMessageStatus.SERVICE_NOT_AVAILABLE, null);
+        return new PutMessageResult(PutMessageStatus.SERVICE_NOT_AVAILABLE, null);
 } else {
     this.printTimes.set(0);
 }
@@ -2136,7 +2146,7 @@ if (currentPos < this.fileSize) {
     byteBuffer.position(currentPos);
     AppendMessageResult result = null;
     if (messageExt instanceof MessageExtBrokerInner) {
-       	//通过回调方法写入
+           //通过回调方法写入
         result = cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos, (MessageExtBrokerInner) messageExt);
     } else if (messageExt instanceof MessageExtBatch) {
         result = cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos, (MessageExtBatch) messageExt);
@@ -2295,12 +2305,12 @@ RocketMQ通过使用内存映射文件提高IO访问性能，无论是CommitLog�
 ![](img/MappedFileQueue.png)
 
 ```java
-String storePath;	//存储目录
-int mappedFileSize;	// 单个文件大小
-CopyOnWriteArrayList<MappedFile> mappedFiles;	//MappedFile文件集合
-AllocateMappedFileService allocateMappedFileService;	//创建MapFile服务类
-long flushedWhere = 0;		//当前刷盘指针
-long committedWhere = 0;	//当前数据提交指针,内存中ByteBuffer当前的写指针,该值大于等于flushWhere
+String storePath;    //存储目录
+int mappedFileSize;    // 单个文件大小
+CopyOnWriteArrayList<MappedFile> mappedFiles;    //MappedFile文件集合
+AllocateMappedFileService allocateMappedFileService;    //创建MapFile服务类
+long flushedWhere = 0;        //当前刷盘指针
+long committedWhere = 0;    //当前数据提交指针,内存中ByteBuffer当前的写指针,该值大于等于flushWhere
 ```
 
 * 根据存储时间查询MappedFile
@@ -2308,10 +2318,10 @@ long committedWhere = 0;	//当前数据提交指针,内存中ByteBuffer当前的
 ```java
 public MappedFile getMappedFileByTime(final long timestamp) {
     Object[] mfs = this.copyMappedFiles(0);
-	
+
     if (null == mfs)
         return null;
-	//遍历MappedFile文件数组
+    //遍历MappedFile文件数组
     for (int i = 0; i < mfs.length; i++) {
         MappedFile mappedFile = (MappedFile) mfs[i];
         //MappedFile文件的最后修改时间大于指定时间戳则返回该文件
@@ -2420,22 +2430,22 @@ public long getMaxWrotePosition() {
 ![](img/MappedFile.png)
 
 ```java
-int OS_PAGE_SIZE = 1024 * 4;		//操作系统每页大小,默认4K
-AtomicLong TOTAL_MAPPED_VIRTUAL_MEMORY = new AtomicLong(0);	//当前JVM实例中MappedFile虚拟内存
-AtomicInteger TOTAL_MAPPED_FILES = new AtomicInteger(0);	//当前JVM实例中MappedFile对象个数
-AtomicInteger wrotePosition = new AtomicInteger(0);	//当前文件的写指针
-AtomicInteger committedPosition = new AtomicInteger(0);	//当前文件的提交指针
-AtomicInteger flushedPosition = new AtomicInteger(0);	//刷写到磁盘指针
-int fileSize;	//文件大小
-FileChannel fileChannel;	//文件通道	
-ByteBuffer writeBuffer = null;	//堆外内存ByteBuffer
-TransientStorePool transientStorePool = null;	//堆外内存池
-String fileName;	//文件名称
-long fileFromOffset;	//该文件的处理偏移量
-File file;	//物理文件
-MappedByteBuffer mappedByteBuffer;	//物理文件对应的内存映射Buffer
-volatile long storeTimestamp = 0;	//文件最后一次内容写入时间
-boolean firstCreateInQueue = false;	//是否是MappedFileQueue队列中第一个文件
+int OS_PAGE_SIZE = 1024 * 4;        //操作系统每页大小,默认4K
+AtomicLong TOTAL_MAPPED_VIRTUAL_MEMORY = new AtomicLong(0);    //当前JVM实例中MappedFile虚拟内存
+AtomicInteger TOTAL_MAPPED_FILES = new AtomicInteger(0);    //当前JVM实例中MappedFile对象个数
+AtomicInteger wrotePosition = new AtomicInteger(0);    //当前文件的写指针
+AtomicInteger committedPosition = new AtomicInteger(0);    //当前文件的提交指针
+AtomicInteger flushedPosition = new AtomicInteger(0);    //刷写到磁盘指针
+int fileSize;    //文件大小
+FileChannel fileChannel;    //文件通道    
+ByteBuffer writeBuffer = null;    //堆外内存ByteBuffer
+TransientStorePool transientStorePool = null;    //堆外内存池
+String fileName;    //文件名称
+long fileFromOffset;    //该文件的处理偏移量
+File file;    //物理文件
+MappedByteBuffer mappedByteBuffer;    //物理文件对应的内存映射Buffer
+volatile long storeTimestamp = 0;    //文件最后一次内容写入时间
+boolean firstCreateInQueue = false;    //是否是MappedFileQueue队列中第一个文件
 ```
 
 ***MappedFile初始化***
@@ -2449,7 +2459,7 @@ private void init(final String fileName, final int fileSize) throws IOException 
     this.file = new File(fileName);
     this.fileFromOffset = Long.parseLong(this.file.getName());
     boolean ok = false;
-	
+
     ensureDirOK(this.file.getParent());
 
     try {
@@ -2478,7 +2488,7 @@ private void init(final String fileName, final int fileSize) throws IOException 
 public void init(final String fileName, final int fileSize,
     final TransientStorePool transientStorePool) throws IOException {
     init(fileName, fileSize);
-    this.writeBuffer = transientStorePool.borrowBuffer();	//初始化writeBuffer
+    this.writeBuffer = transientStorePool.borrowBuffer();    //初始化writeBuffer
     this.transientStorePool = transientStorePool;
 }
 ```
@@ -2523,7 +2533,7 @@ protected boolean isAbleToCommit(final int commitLeastPages) {
     int flush = this.committedPosition.get();
     //文件写指针
     int write = this.wrotePosition.get();
-	//写满刷盘
+    //写满刷盘
     if (this.isFull()) {
         return true;
     }
@@ -2594,7 +2604,7 @@ public int flush(final int flushLeastPages) {
             } catch (Throwable e) {
                 log.error("Error occurred when force data to disk.", e);
             }
-			//更新刷盘位置
+            //更新刷盘位置
             this.flushedPosition.set(value);
             this.release();
         } else {
@@ -2674,9 +2684,9 @@ public void shutdown(final long intervalForcibly) {
 ![](img/TransientStorePool.png)
 
 ```java
-private final int poolSize;		//availableBuffers个数
-private final int fileSize;		//每隔ByteBuffer大小
-private final Deque<ByteBuffer> availableBuffers;	//ByteBuffer容器。双端队列
+private final int poolSize;        //availableBuffers个数
+private final int fileSize;        //每隔ByteBuffer大小
+private final Deque<ByteBuffer> availableBuffers;    //ByteBuffer容器。双端队列
 ```
 
 ***初始化***
@@ -2718,7 +2728,7 @@ this.reputMessageService.start();
 ```java
 public void run() {
     DefaultMessageStore.log.info(this.getServiceName() + " service started");
-	//每隔1毫秒就继续尝试推送消息到消息消费队列和索引文件
+    //每隔1毫秒就继续尝试推送消息到消息消费队列和索引文件
     while (!this.isStopped()) {
         try {
             Thread.sleep(1);
@@ -2737,13 +2747,13 @@ public void run() {
 ```java
 //从result中循环遍历消息,一次读一条,创建DispatherRequest对象。
 for (int readSize = 0; readSize < result.getSize() && doNext; ) {
-	DispatchRequest dispatchRequest =                               DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
-	int size = dispatchRequest.getBufferSize() == -1 ? dispatchRequest.getMsgSize() : dispatchRequest.getBufferSize();
+    DispatchRequest dispatchRequest =                               DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
+    int size = dispatchRequest.getBufferSize() == -1 ? dispatchRequest.getMsgSize() : dispatchRequest.getBufferSize();
 
-	if (dispatchRequest.isSuccess()) {
-	    if (size > 0) {
-	        DefaultMessageStore.this.doDispatch(dispatchRequest);
-	    }
+    if (dispatchRequest.isSuccess()) {
+        if (size > 0) {
+            DefaultMessageStore.this.doDispatch(dispatchRequest);
+        }
     }
 }
 ```
@@ -2755,18 +2765,18 @@ for (int readSize = 0; readSize < result.getSize() && doNext; ) {
 ```java
 String topic; //消息主题名称
 int queueId;  //消息队列ID
-long commitLogOffset;	//消息物理偏移量
-int msgSize;	//消息长度
-long tagsCode;	//消息过滤tag hashCode
-long storeTimestamp;	//消息存储时间戳
-long consumeQueueOffset;	//消息队列偏移量
-String keys;	//消息索引key
-boolean success;	//是否成功解析到完整的消息
-String uniqKey;	//消息唯一键
-int sysFlag;	//消息系统标记
-long preparedTransactionOffset;	//消息预处理事务偏移量
-Map<String, String> propertiesMap;	//消息属性
-byte[] bitMap;	//位图
+long commitLogOffset;    //消息物理偏移量
+int msgSize;    //消息长度
+long tagsCode;    //消息过滤tag hashCode
+long storeTimestamp;    //消息存储时间戳
+long consumeQueueOffset;    //消息队列偏移量
+String keys;    //消息索引key
+boolean success;    //是否成功解析到完整的消息
+String uniqKey;    //消息唯一键
+int sysFlag;    //消息系统标记
+long preparedTransactionOffset;    //消息预处理事务偏移量
+Map<String, String> propertiesMap;    //消息属性
+byte[] bitMap;    //位图
 ```
 
 #### 1）转发到ConsumerQueue
@@ -2862,7 +2872,7 @@ public void buildIndex(DispatchRequest req) {
             case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
                 return;
         }
-		
+
         //如果消息ID不为空,则添加到Hash索引中
         if (req.getUniqKey() != null) {
             indexFile = putKey(indexFile, msg, buildKey(topic, req.getUniqKey()));
@@ -2870,7 +2880,7 @@ public void buildIndex(DispatchRequest req) {
                 return;
             }
         }
-		//构建索引key,RocketMQ支持为同一个消息建立多个索引,多个索引键空格隔开.
+        //构建索引key,RocketMQ支持为同一个消息建立多个索引,多个索引键空格隔开.
         if (keys != null && keys.length() > 0) {
             String[] keyset = keys.split(MessageConst.KEY_SEPARATOR);
             for (int i = 0; i < keyset.length; i++) {
@@ -2929,11 +2939,11 @@ result = result && this.commitLog.load();
 result = result && this.loadConsumeQueue();
 
 if (result) {
-	//加载存储监测点,监测点主要记录CommitLog文件、ConsumerQueue文件、Index索引文件的刷盘点
+    //加载存储监测点,监测点主要记录CommitLog文件、ConsumerQueue文件、Index索引文件的刷盘点
     this.storeCheckpoint =new StoreCheckpoint(StorePathConfigHelper.getStoreCheckpoint(this.messageStoreConfig.getStorePathRootDir()));
-	//加载index文件
+    //加载index文件
     this.indexService.load(lastExitOK);
-	//根据Broker是否异常退出,执行不同的恢复策略
+    //根据Broker是否异常退出,执行不同的恢复策略
     this.recover(lastExitOK);
 }
 ```
@@ -2952,9 +2962,9 @@ if (files != null) {
     Arrays.sort(files);
     //遍历文件
     for (File file : files) {
-		//如果文件大小和配置文件不一致,退出
+        //如果文件大小和配置文件不一致,退出
         if (file.length() != this.mappedFileSize) {
-            
+
             return false;
         }
 
@@ -2991,7 +3001,7 @@ if (fileTopicList != null) {
     for (File fileTopic : fileTopicList) {
         //获得子目录名称,即topic名称
         String topic = fileTopic.getName();
-		//遍历子目录下的消费队列文件
+        //遍历子目录下的消费队列文件
         File[] fileQueueIdList = fileTopic.listFiles();
         if (fileQueueIdList != null) {
             //遍历文件
@@ -3052,7 +3062,7 @@ public boolean load(final boolean lastExitOK) {
                         continue;
                     }
                 }
-				//将索引文件添加到队列
+                //将索引文件添加到队列
                 log.info("load index file OK, " + f.getFileName());
                 this.indexFileList.add(f);
             } catch (IOException e) {
@@ -3084,7 +3094,7 @@ private void recover(final boolean lastExitOK) {
         //异常恢复
         this.commitLog.recoverAbnormally(maxPhyOffsetOfConsumeQueue);
     }
-	//在CommitLog中保存每个消息消费队列当前的存储逻辑偏移量
+    //在CommitLog中保存每个消息消费队列当前的存储逻辑偏移量
     this.recoverTopicQueueTable();
 }
 ```
@@ -3116,7 +3126,7 @@ public void recoverTopicQueueTable() {
 
 ```java
 public void recoverNormally(long maxPhyOffsetOfConsumeQueue) {
-	
+
     final List<MappedFile> mappedFiles = this.mappedFileQueue.getMappedFiles();
     if (!mappedFiles.isEmpty()) {
          //Broker正常停止再重启时,从倒数第三个开始恢复,如果不足3个文件,则从第一个文件开始恢复。
@@ -3133,11 +3143,11 @@ public void recoverNormally(long maxPhyOffsetOfConsumeQueue) {
             DispatchRequest dispatchRequest = this.checkMessageAndReturnSize(byteBuffer, checkCRCOnRecover);
             //消息长度
             int size = dispatchRequest.getMsgSize();
-           	//查找结果为true,并且消息长度大于0,表示消息正确.mappedFileOffset向前移动本消息长度
+               //查找结果为true,并且消息长度大于0,表示消息正确.mappedFileOffset向前移动本消息长度
             if (dispatchRequest.isSuccess() && size > 0) {
                 mappedFileOffset += size;
             }
-			//如果查找结果为true且消息长度等于0,表示已到该文件末尾,如果还有下一个文件,则重置processOffset和MappedFileOffset重复查找下一个文件,否则跳出循环。
+            //如果查找结果为true且消息长度等于0,表示已到该文件末尾,如果还有下一个文件,则重置processOffset和MappedFileOffset重复查找下一个文件,否则跳出循环。
             else if (dispatchRequest.isSuccess() && size == 0) {
               index++;
               if (index >= mappedFiles.size()) {
@@ -3149,8 +3159,8 @@ public void recoverNormally(long maxPhyOffsetOfConsumeQueue) {
                   byteBuffer = mappedFile.sliceByteBuffer();
                   processOffset = mappedFile.getFileFromOffset();
                   mappedFileOffset = 0;
-                  
-          		}
+
+                  }
             }
             // 查找结果为false，表明该文件未填满所有消息，跳出循环，结束循环
             else if (!dispatchRequest.isSuccess()) {
@@ -3158,14 +3168,14 @@ public void recoverNormally(long maxPhyOffsetOfConsumeQueue) {
                 break;
             }
         }
-		//更新MappedFileQueue的flushedWhere和committedWhere指针
+        //更新MappedFileQueue的flushedWhere和committedWhere指针
         processOffset += mappedFileOffset;
         this.mappedFileQueue.setFlushedWhere(processOffset);
         this.mappedFileQueue.setCommittedWhere(processOffset);
         //删除offset之后的所有文件
         this.mappedFileQueue.truncateDirtyFiles(processOffset);
 
-        
+
         if (maxPhyOffsetOfConsumeQueue >= processOffset) {
             this.defaultMessageStore.truncateDirtyLogicFiles(processOffset);
         }
@@ -3182,7 +3192,7 @@ public void recoverNormally(long maxPhyOffsetOfConsumeQueue) {
 ```java
 public void truncateDirtyFiles(long offset) {
     List<MappedFile> willRemoveFiles = new ArrayList<MappedFile>();
-	//遍历目录下文件
+    //遍历目录下文件
     for (MappedFile file : this.mappedFiles) {
         //文件尾部的偏移量
         long fileTailOffset = file.getFileFromOffset() + this.mappedFileSize;
@@ -3225,13 +3235,13 @@ if (!mappedFiles.isEmpty()) {
             break;
         }
     }
-	//根据索引取出mappedFile文件
+    //根据索引取出mappedFile文件
     if (index < 0) {
         index = 0;
         mappedFile = mappedFiles.get(index);
     }
     //...验证消息的合法性,并将消息转发到消息消费队列和索引文件
-       
+
 }else{
     //未找到mappedFile,重置flushWhere、committedWhere都为0，销毁消息队列文件
     this.mappedFileQueue.setFlushedWhere(0);
@@ -3272,9 +3282,9 @@ if (messageExt.isWaitStoreMsgOK()) {
 ![](img/GroupCommitRequest.png)
 
 ```java
-long nextOffset;	//刷盘点偏移量
-CountDownLatch countDownLatch = new CountDownLatch(1);	//倒计树锁存器
-volatile boolean flushOK = false;	//刷盘结果;默认为false
+long nextOffset;    //刷盘点偏移量
+CountDownLatch countDownLatch = new CountDownLatch(1);    //倒计树锁存器
+volatile boolean flushOK = false;    //刷盘结果;默认为false
 ```
 
 ***代码：GroupCommitService#run***
@@ -3293,7 +3303,7 @@ public void run() {
             CommitLog.log.warn(this.getServiceName() + " service has exception. ", e);
         }
     }
-	...
+    ...
 }
 ```
 
@@ -3311,20 +3321,20 @@ private void doCommit() {
                 boolean flushOK = false;
                 for (int i = 0; i < 2 && !flushOK; i++) {
                     flushOK = CommitLog.this.mappedFileQueue.getFlushedWhere() >= req.getNextOffset();
-					//刷盘
+                    //刷盘
                     if (!flushOK) {
                         CommitLog.this.mappedFileQueue.flush(0);
                     }
                 }
-				//唤醒发送消息客户端
+                //唤醒发送消息客户端
                 req.wakeupCustomer(flushOK);
             }
-			
+
             //更新刷盘监测点
             long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
             if (storeTimestamp > 0) {               CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
             }
-			
+
             this.requestsRead.clear();
         } else {
             // Because of individual messages is set to not sync flush, it
@@ -3424,7 +3434,6 @@ long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
 if (storeTimestamp > 0) {
 //更新存储监测点文件的时间戳
 CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
-
 ```
 
 ### 2.4.8 过期文件删除机制
@@ -3435,14 +3444,14 @@ CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(st
 
 ```java
 private void addScheduleTask() {
-	//每隔10s调度一次清除文件
+    //每隔10s调度一次清除文件
     this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
         @Override
         public void run() {
             DefaultMessageStore.this.cleanFilesPeriodically();
         }
     }, 1000 * 60, this.messageStoreConfig.getCleanResourceInterval(), TimeUnit.MILLISECONDS);
-	...
+    ...
 }
 ```
 
@@ -3474,7 +3483,7 @@ boolean timeup = this.isTimeToDelete();
 boolean spacefull = this.isSpaceToDelete();
 boolean manualDelete = this.manualDeleteFileSeveralTimes > 0;
 if (timeup || spacefull || manualDelete) {
-	...执行删除逻辑
+    ...执行删除逻辑
 }else{
     ...无作为
 }
@@ -3494,7 +3503,7 @@ if (timeup || spacefull || manualDelete) {
 private boolean isSpaceToDelete() {
     //磁盘分区的最大使用量
     double ratio = DefaultMessageStore.this.getMessageStoreConfig().getDiskMaxUsedSpaceRatio() / 100.0;
-	//是否需要立即执行删除过期文件操作
+    //是否需要立即执行删除过期文件操作
     cleanImmediately = false;
 
     {
@@ -3507,7 +3516,7 @@ private boolean isSpaceToDelete() {
             if (diskok) {
                 DefaultMessageStore.log.error("physic disk maybe full soon " + physicRatio + ", so mark disk full");
             }
-			//diskSpaceCleanForciblyRatio:强制清除阈值,默认0.85
+            //diskSpaceCleanForciblyRatio:强制清除阈值,默认0.85
             cleanImmediately = true;
         } else if (physicRatio > diskSpaceCleanForciblyRatio) {
             cleanImmediately = true;
@@ -3606,9 +3615,9 @@ void unsubscribe(final String topic)：取消消息订阅
 
 ```java
 //消费者组
-private String consumerGroup;	
+private String consumerGroup;    
 //消息消费模式
-private MessageModel messageModel = MessageModel.CLUSTERING;	
+private MessageModel messageModel = MessageModel.CLUSTERING;    
 //指定消费开始偏移量（最大偏移量、最小偏移量、启动时间戳）开始消费
 private ConsumeFromWhere consumeFromWhere = ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET;
 //集群模式下的消息队列负载策略
@@ -3651,20 +3660,20 @@ private long consumeTimeout = 15;
 public synchronized void start() throws MQClientException {
     switch (this.serviceState) {
         case CREATE_JUST:
-            
+
                 this.defaultMQPushConsumer.getMessageModel(), this.defaultMQPushConsumer.isUnitMode());
             this.serviceState = ServiceState.START_FAILED;
-			//检查消息者是否合法
+            //检查消息者是否合法
             this.checkConfig();
-			//构建主题订阅信息
+            //构建主题订阅信息
             this.copySubscription();
-			//设置消费者客户端实例名称为进程ID
+            //设置消费者客户端实例名称为进程ID
             if (this.defaultMQPushConsumer.getMessageModel() == MessageModel.CLUSTERING) {
                 this.defaultMQPushConsumer.changeInstanceNameToPID();
             }
-			//创建MQClient实例
+            //创建MQClient实例
             this.mQClientFactory = MQClientManager.getInstance().getAndCreateMQClientInstance(this.defaultMQPushConsumer, this.rpcHook);
-			//构建rebalanceImpl
+            //构建rebalanceImpl
             this.rebalanceImpl.setConsumerGroup(this.defaultMQPushConsumer.getConsumerGroup());
             this.rebalanceImpl.setMessageModel(this.defaultMQPushConsumer.getMessageModel());
             this.rebalanceImpl.setAllocateMessageQueueStrategy(this.defaultMQPushConsumer.getAllocateMessageQueueStrategy());
@@ -3676,19 +3685,19 @@ public synchronized void start() throws MQClientException {
             if (this.defaultMQPushConsumer.getOffsetStore() != null) {
                 this.offsetStore = this.defaultMQPushConsumer.getOffsetStore();
             } else {
-           		switch (this.defaultMQPushConsumer.getMessageModel()) {
-               
-           	    case BROADCASTING:	 //消息消费广播模式,将消费进度保存在本地
-           	        this.offsetStore = new LocalFileOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
-           	            break;
-           	        case CLUSTERING:	//消息消费集群模式,将消费进度保存在远端Broker
-           	            this.offsetStore = new RemoteBrokerOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
-           	            break;
-           	        default:
-           	            break;
-           	    }
-           	    this.defaultMQPushConsumer.setOffsetStore(this.offsetStore);
-           	}
+                   switch (this.defaultMQPushConsumer.getMessageModel()) {
+
+                   case BROADCASTING:     //消息消费广播模式,将消费进度保存在本地
+                       this.offsetStore = new LocalFileOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
+                           break;
+                       case CLUSTERING:    //消息消费集群模式,将消费进度保存在远端Broker
+                           this.offsetStore = new RemoteBrokerOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
+                           break;
+                       default:
+                           break;
+                   }
+                   this.defaultMQPushConsumer.setOffsetStore(this.offsetStore);
+               }
             this.offsetStore.load
             //创建顺序消息消费服务
             if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
@@ -3705,7 +3714,7 @@ public synchronized void start() throws MQClientException {
             this.consumeMessageService.start();
             //注册消费者实例
             boolean registerOK = mQClientFactory.registerConsumer(this.defaultMQPushConsumer.getConsumerGroup(), this);
-            
+
             if (!registerOK) {
                 this.serviceState = ServiceState.CREATE_JUST;
                 this.consumeMessageService.shutdown();
@@ -3752,7 +3761,7 @@ public synchronized void start() throws MQClientException {
 ```java
 public void run() {
     log.info(this.getServiceName() + " service started");
-	//循环拉取消息
+    //循环拉取消息
     while (!this.isStopped()) {
         try {
             //从请求队列中获取拉取消息请求
@@ -3774,11 +3783,11 @@ public void run() {
 ![](img/PullRequest.png)
 
 ```java
-private String consumerGroup;	//消费者组
-private MessageQueue messageQueue;	//待拉取消息队列
-private ProcessQueue processQueue;	//消息处理队列
-private long nextOffset;	//待拉取的MessageQueue偏移量
-private boolean lockedFirst = false;	//是否被锁定
+private String consumerGroup;    //消费者组
+private MessageQueue messageQueue;    //待拉取消息队列
+private ProcessQueue processQueue;    //消息处理队列
+private long nextOffset;    //待拉取的MessageQueue偏移量
+private boolean lockedFirst = false;    //是否被锁定
 ```
 
 ***代码：PullMessageService#pullMessage***
@@ -3861,7 +3870,7 @@ public void pullMessage(final PullRequest pullRequest) {
         log.info("the pull request[{}] is dropped.", pullRequest.toString());
         return;
     }
-	//如果处理队列未被丢弃,更新时间戳
+    //如果处理队列未被丢弃,更新时间戳
     pullRequest.getProcessQueue().setLastPullTimestamp(System.currentTimeMillis());
 
     try {
@@ -3871,58 +3880,58 @@ public void pullMessage(final PullRequest pullRequest) {
         this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
         return;
     }
-	//如果处理队列被挂起,延迟1s后再执行
+    //如果处理队列被挂起,延迟1s后再执行
     if (this.isPause()) {
         log.warn("consumer was paused, execute pull request later. instanceName={}, group={}", this.defaultMQPushConsumer.getInstanceName(), this.defaultMQPushConsumer.getConsumerGroup());
         this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_SUSPEND);
         return;
     }
-	//获得最大待处理消息数量
-	long cachedMessageCount = processQueue.getMsgCount().get();
+    //获得最大待处理消息数量
+    long cachedMessageCount = processQueue.getMsgCount().get();
     //获得最大待处理消息大小
-	long cachedMessageSizeInMiB = processQueue.getMsgSize().get() / (1024 * 1024);
-	//从数量进行流控
-	if (cachedMessageCount > this.defaultMQPushConsumer.getPullThresholdForQueue()) {
-	    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_FLOW_CONTROL);
-	    if ((queueFlowControlTimes++ % 1000) == 0) {
-	        log.warn(
-	            "the cached message count exceeds the threshold {}, so do flow control, minOffset={}, maxOffset={}, count={}, size={} MiB, pullRequest={}, flowControlTimes={}",
-	            this.defaultMQPushConsumer.getPullThresholdForQueue(), processQueue.getMsgTreeMap().firstKey(), processQueue.getMsgTreeMap().lastKey(), cachedMessageCount, cachedMessageSizeInMiB, pullRequest, queueFlowControlTimes);
-	    }
-	    return;
-	}
-	//从消息大小进行流控
-	if (cachedMessageSizeInMiB > this.defaultMQPushConsumer.getPullThresholdSizeForQueue()) {
-	    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_FLOW_CONTROL);
-	    if ((queueFlowControlTimes++ % 1000) == 0) {
-	        log.warn(
-	            "the cached message size exceeds the threshold {} MiB, so do flow control, minOffset={}, maxOffset={}, count={}, size={} MiB, pullRequest={}, flowControlTimes={}",
-	            this.defaultMQPushConsumer.getPullThresholdSizeForQueue(), processQueue.getMsgTreeMap().firstKey(), processQueue.getMsgTreeMap().lastKey(), cachedMessageCount, cachedMessageSizeInMiB, pullRequest, queueFlowControlTimes);
-	    }
-	    return;
+    long cachedMessageSizeInMiB = processQueue.getMsgSize().get() / (1024 * 1024);
+    //从数量进行流控
+    if (cachedMessageCount > this.defaultMQPushConsumer.getPullThresholdForQueue()) {
+        this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_FLOW_CONTROL);
+        if ((queueFlowControlTimes++ % 1000) == 0) {
+            log.warn(
+                "the cached message count exceeds the threshold {}, so do flow control, minOffset={}, maxOffset={}, count={}, size={} MiB, pullRequest={}, flowControlTimes={}",
+                this.defaultMQPushConsumer.getPullThresholdForQueue(), processQueue.getMsgTreeMap().firstKey(), processQueue.getMsgTreeMap().lastKey(), cachedMessageCount, cachedMessageSizeInMiB, pullRequest, queueFlowControlTimes);
+        }
+        return;
     }
-    	//获得订阅信息
-		 final SubscriptionData subscriptionData = this.rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
-    	if (null == subscriptionData) {
-    	    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
-    	    log.warn("find the consumer's subscription failed, {}", pullRequest);
-    	    return;
-		//与服务端交互,获取消息
-	    this.pullAPIWrapper.pullKernelImpl(
-	    pullRequest.getMessageQueue(),
-	    subExpression,
-	    subscriptionData.getExpressionType(),
-	    subscriptionData.getSubVersion(),
-	    pullRequest.getNextOffset(),
-	    this.defaultMQPushConsumer.getPullBatchSize(),
-	    sysFlag,
-	    commitOffsetValue,
-	    BROKER_SUSPEND_MAX_TIME_MILLIS,
-	    CONSUMER_TIMEOUT_MILLIS_WHEN_SUSPEND,
-	    CommunicationMode.ASYNC,
-	    pullCallback
-	);
-            
+    //从消息大小进行流控
+    if (cachedMessageSizeInMiB > this.defaultMQPushConsumer.getPullThresholdSizeForQueue()) {
+        this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_FLOW_CONTROL);
+        if ((queueFlowControlTimes++ % 1000) == 0) {
+            log.warn(
+                "the cached message size exceeds the threshold {} MiB, so do flow control, minOffset={}, maxOffset={}, count={}, size={} MiB, pullRequest={}, flowControlTimes={}",
+                this.defaultMQPushConsumer.getPullThresholdSizeForQueue(), processQueue.getMsgTreeMap().firstKey(), processQueue.getMsgTreeMap().lastKey(), cachedMessageCount, cachedMessageSizeInMiB, pullRequest, queueFlowControlTimes);
+        }
+        return;
+    }
+        //获得订阅信息
+         final SubscriptionData subscriptionData = this.rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
+        if (null == subscriptionData) {
+            this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
+            log.warn("find the consumer's subscription failed, {}", pullRequest);
+            return;
+        //与服务端交互,获取消息
+        this.pullAPIWrapper.pullKernelImpl(
+        pullRequest.getMessageQueue(),
+        subExpression,
+        subscriptionData.getExpressionType(),
+        subscriptionData.getSubVersion(),
+        pullRequest.getNextOffset(),
+        this.defaultMQPushConsumer.getPullBatchSize(),
+        sysFlag,
+        commitOffsetValue,
+        BROKER_SUSPEND_MAX_TIME_MILLIS,
+        CONSUMER_TIMEOUT_MILLIS_WHEN_SUSPEND,
+        CommunicationMode.ASYNC,
+        pullCallback
+    );
+
 }
 ```
 
@@ -3945,24 +3954,24 @@ if (this.brokerController.getBrokerConfig().isFilterSupportRetry()) {
 //调用MessageStore.getMessage查找消息
 final GetMessageResult getMessageResult =
     this.brokerController.getMessageStore().getMessage(
-    				requestHeader.getConsumerGroup(), //消费组名称								
-    				requestHeader.getTopic(),	//主题名称
-        			requestHeader.getQueueId(), //队列ID
-    				requestHeader.getQueueOffset(), 	//待拉取偏移量
-    				requestHeader.getMaxMsgNums(), 	//最大拉取消息条数
-    				messageFilter	//消息过滤器
-    		);
+                    requestHeader.getConsumerGroup(), //消费组名称                                
+                    requestHeader.getTopic(),    //主题名称
+                    requestHeader.getQueueId(), //队列ID
+                    requestHeader.getQueueOffset(),     //待拉取偏移量
+                    requestHeader.getMaxMsgNums(),     //最大拉取消息条数
+                    messageFilter    //消息过滤器
+            );
 ```
 
 ***代码：DefaultMessageStore#getMessage***
 
 ```java
 GetMessageStatus status = GetMessageStatus.NO_MESSAGE_IN_QUEUE;
-long nextBeginOffset = offset;	//查找下一次队列偏移量
-long minOffset = 0;		//当前消息队列最小偏移量
-long maxOffset = 0;		//当前消息队列最大偏移量
+long nextBeginOffset = offset;    //查找下一次队列偏移量
+long minOffset = 0;        //当前消息队列最小偏移量
+long maxOffset = 0;        //当前消息队列最大偏移量
 GetMessageResult getResult = new GetMessageResult();
-final long maxOffsetPy = this.commitLog.getMaxOffset();	//当前commitLog最大偏移量
+final long maxOffsetPy = this.commitLog.getMaxOffset();    //当前commitLog最大偏移量
 //根据主题名称和队列编号获取消息消费队列
 ConsumeQueue consumeQueue = findConsumeQueue(topic, queueId);
 
@@ -3970,16 +3979,16 @@ ConsumeQueue consumeQueue = findConsumeQueue(topic, queueId);
 minOffset = consumeQueue.getMinOffsetInQueue();
 maxOffset = consumeQueue.getMaxOffsetInQueue();
 //消息偏移量异常情况校对下一次拉取偏移量
-if (maxOffset == 0) {	//表示当前消息队列中没有消息
+if (maxOffset == 0) {    //表示当前消息队列中没有消息
     status = GetMessageStatus.NO_MESSAGE_IN_QUEUE;
     nextBeginOffset = nextOffsetCorrection(offset, 0);
-} else if (offset < minOffset) {	//待拉取消息的偏移量小于队列的其实偏移量
+} else if (offset < minOffset) {    //待拉取消息的偏移量小于队列的其实偏移量
     status = GetMessageStatus.OFFSET_TOO_SMALL;
     nextBeginOffset = nextOffsetCorrection(offset, minOffset);
-} else if (offset == maxOffset) {	//待拉取偏移量为队列最大偏移量
+} else if (offset == maxOffset) {    //待拉取偏移量为队列最大偏移量
     status = GetMessageStatus.OFFSET_OVERFLOW_ONE;
     nextBeginOffset = nextOffsetCorrection(offset, offset);
-} else if (offset > maxOffset) {	//偏移量越界
+} else if (offset > maxOffset) {    //偏移量越界
     status = GetMessageStatus.OFFSET_OVERFLOW_BADLY;
     if (0 == minOffset) {
         nextBeginOffset = nextOffsetCorrection(offset, minOffset);
@@ -4016,14 +4025,14 @@ switch (this.brokerController.getMessageStoreConfig().getBrokerRole()) {
 ...
 //GetMessageResult与Response的Code转换
 switch (getMessageResult.getStatus()) {
-    case FOUND:			//成功
+    case FOUND:            //成功
         response.setCode(ResponseCode.SUCCESS);
         break;
-    case MESSAGE_WAS_REMOVING:	//消息存放在下一个commitLog中
-        response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);	//消息重试
+    case MESSAGE_WAS_REMOVING:    //消息存放在下一个commitLog中
+        response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);    //消息重试
         break;
-    case NO_MATCHED_LOGIC_QUEUE:	//未找到队列
-    case NO_MESSAGE_IN_QUEUE:	//队列中未包含消息
+    case NO_MATCHED_LOGIC_QUEUE:    //未找到队列
+    case NO_MESSAGE_IN_QUEUE:    //队列中未包含消息
         if (0 != requestHeader.getQueueOffset()) {
             response.setCode(ResponseCode.PULL_OFFSET_MOVED);
             requestHeader.getQueueOffset(),
@@ -4036,22 +4045,22 @@ switch (getMessageResult.getStatus()) {
             response.setCode(ResponseCode.PULL_NOT_FOUND);
         }
         break;
-    case NO_MATCHED_MESSAGE:	//未找到消息
+    case NO_MATCHED_MESSAGE:    //未找到消息
         response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);
         break;
-    case OFFSET_FOUND_NULL:	//消息物理偏移量为空
+    case OFFSET_FOUND_NULL:    //消息物理偏移量为空
         response.setCode(ResponseCode.PULL_NOT_FOUND);
         break;
-    case OFFSET_OVERFLOW_BADLY:	//offset越界
+    case OFFSET_OVERFLOW_BADLY:    //offset越界
         response.setCode(ResponseCode.PULL_OFFSET_MOVED);
         // XXX: warn and notify me
         log.info("the request offset: {} over flow badly, broker max offset: {}, consumer: {}",
                 requestHeader.getQueueOffset(), getMessageResult.getMaxOffset(), channel.remoteAddress());
         break;
-    case OFFSET_OVERFLOW_ONE:	//offset在队列中未找到
+    case OFFSET_OVERFLOW_ONE:    //offset在队列中未找到
         response.setCode(ResponseCode.PULL_NOT_FOUND);
         break;
-    case OFFSET_TOO_SMALL:	//offset未在队列中
+    case OFFSET_TOO_SMALL:    //offset未在队列中
         response.setCode(ResponseCode.PULL_OFFSET_MOVED);
         requestHeader.getConsumerGroup(), 
         requestHeader.getTopic(), 
@@ -4084,7 +4093,7 @@ if (storeOffsetEnable) {
 private PullResult processPullResponse(
     final RemotingCommand response) throws MQBrokerException, RemotingCommandException {
     PullStatus pullStatus = PullStatus.NO_NEW_MSG;
-   	//判断响应结果
+       //判断响应结果
     switch (response.getCode()) {
         case ResponseCode.SUCCESS:
             pullStatus = PullStatus.FOUND;
@@ -4102,10 +4111,10 @@ private PullResult processPullResponse(
         default:
             throw new MQBrokerException(response.getCode(), response.getRemark());
     }
-	//解码响应头
+    //解码响应头
     PullMessageResponseHeader responseHeader =
         (PullMessageResponseHeader) response.decodeCommandCustomHeader(PullMessageResponseHeader.class);
-	//封装PullResultExt返回
+    //封装PullResultExt返回
     return new PullResultExt(pullStatus, responseHeader.getNextBeginOffset(), responseHeader.getMinOffset(),
         responseHeader.getMaxOffset(), null, responseHeader.getSuggestWhichBrokerId(), response.getBody());
 }
@@ -4114,11 +4123,11 @@ private PullResult processPullResponse(
 <u>**PullResult类**</u>
 
 ```java
-private final PullStatus pullStatus;	//拉取结果
-private final long nextBeginOffset;	//下次拉取偏移量
-private final long minOffset;	//消息队列最小偏移量
-private final long maxOffset;	//消息队列最大偏移量
-private List<MessageExt> msgFoundList;	//拉取的消息列表
+private final PullStatus pullStatus;    //拉取结果
+private final long nextBeginOffset;    //下次拉取偏移量
+private final long minOffset;    //消息队列最小偏移量
+private final long maxOffset;    //消息队列最大偏移量
+private List<MessageExt> msgFoundList;    //拉取的消息列表
 ```
 
 ![](img/PullStatus.png)
@@ -4347,7 +4356,7 @@ RocketMQ消息队列重新分配是由RebalanceService线程来实现。一个MQ
 ```java
 public void run() {
     log.info(this.getServiceName() + " service started");
-	//RebalanceService线程默认每隔20s执行一次mqClientFactory.doRebalance方法
+    //RebalanceService线程默认每隔20s执行一次mqClientFactory.doRebalance方法
     while (!this.isStopped()) {
         this.waitForRunning(waitInterval);
         this.mqClientFactory.doRebalance();
@@ -4471,26 +4480,26 @@ if (msgs.size() <= consumeBatchSize) {
     } catch (RejectedExecutionException e) {
         this.submitConsumeRequestLater(consumeRequest);
     }
-}else{	//如果拉取的消息条数大于consumeBatchSize,则对拉取消息进行分页
+}else{    //如果拉取的消息条数大于consumeBatchSize,则对拉取消息进行分页
        for (int total = 0; total < msgs.size(); ) {
-   		    List<MessageExt> msgThis = new ArrayList<MessageExt>(consumeBatchSize);
-   		    for (int i = 0; i < consumeBatchSize; i++, total++) {
-   		        if (total < msgs.size()) {
-   		            msgThis.add(msgs.get(total));
-   		        } else {
-   		            break;
-   		        }
-   		
-   		    ConsumeRequest consumeRequest = new ConsumeRequest(msgThis, processQueue, messageQueue);
-   		    try {
-   		        this.consumeExecutor.submit(consumeRequest);
-   		    } catch (RejectedExecutionException e) {
-   		        for (; total < msgs.size(); total++) {
-   		            msgThis.add(msgs.get(total));
-   		 
-   		        this.submitConsumeRequestLater(consumeRequest);
-   		    }
-   		}
+               List<MessageExt> msgThis = new ArrayList<MessageExt>(consumeBatchSize);
+               for (int i = 0; i < consumeBatchSize; i++, total++) {
+                   if (total < msgs.size()) {
+                       msgThis.add(msgs.get(total));
+                   } else {
+                       break;
+                   }
+
+               ConsumeRequest consumeRequest = new ConsumeRequest(msgThis, processQueue, messageQueue);
+               try {
+                   this.consumeExecutor.submit(consumeRequest);
+               } catch (RejectedExecutionException e) {
+                   for (; total < msgs.size(); total++) {
+                       msgThis.add(msgs.get(total));
+
+                   this.submitConsumeRequestLater(consumeRequest);
+               }
+           }
 }
 ```
 
@@ -4573,7 +4582,6 @@ this.timer.scheduleAtFixedRate(new TimerTask() {
         }
     }
 }, 10000, this.defaultMessageStore.getMessageStoreConfig().getFlushDelayOffsetInterval());
-
 ```
 
 **<u>调度机制</u>**
@@ -4612,10 +4620,10 @@ for (; i < bufferCQ.getSize(); i += ConsumeQueue.CQ_STORE_UNIT_SIZE) {
 
     long now = System.currentTimeMillis();
     long deliverTimestamp = this.correctDeliverTimestamp(now, tagsCode);
-    
+
     ...
     //根据消息偏移量与消息大小,从CommitLog中查找消息.
-  	MessageExt msgExt =
+      MessageExt msgExt =
    ScheduleMessageService.this.defaultMessageStore.lookMessageByOffset(
        offsetPy, sizePy);
 } 
@@ -4668,7 +4676,7 @@ if (this.processQueue.isDropped()) {
 //从消息队列中获取一个对象。然后消费消息时先申请独占objLock锁。顺序消息一个消息消费队列同一时刻只会被一个消费线程池处理
 final Object objLock = messageQueueLock.fetchLockObject(this.messageQueue);
 synchronized (objLock) {
-	...
+    ...
 }
 ```
 

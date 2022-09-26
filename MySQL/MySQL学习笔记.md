@@ -841,8 +841,6 @@ update y set yname='y4' where id=2;
 
 - 间隙锁只在RR级别下才会生效
 
-
-
 #### 乐观锁和悲观锁
 
         -- 悲观锁

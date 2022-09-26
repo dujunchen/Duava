@@ -7,6 +7,7 @@
 - FilterChainProxy的创建初始化过程是在security配置解析过程中完成的。解析工作主要由SecurityNamespaceHandler的parse()完成。如果是采用注解方式，@EnableWebSecurity注解会@Import WebSecurityConfiguration，WebSecurityConfiguration中的springSecurityFilterChain()方法将会创建FilterChainProxy实例，具体是在WebSecurity的performBuild()方法中。
 
 - 使用DelegatingFilterProxy从IOC中获取到FilterChainProxy实例，bean name默认为springSecurityFilterChain。然后调用其doFilter()方法
+
 - FilterChainProxy中核心是维护了一个List\<SecurityFilterChain\>，每一个SecurityFilterChain（真正类型是DefaultSecurityFilterChain）维护一个RequestMatcher和List\<Filter\>，这个在FilterChainProxy初始化的时候已经设置好了，在HttpSecurityBeanDefinitionParser的createFilterChain()中使用HttpConfigurationBuilder和AuthenticationConfigBuilder分别创建相应的Filter，并且会按照SecurityFilters中的顺序排序，注解方式是在WebSecurity的performBuild()方法中。
 
 ### WebSecurity
@@ -22,7 +23,7 @@
 #### configure(AuthenticationManagerBuilder)
 
 - 用于通过允许轻松添加AuthenticationProviders来建立身份验证机制：例如，以下内容定义了具有内置“用户”和“管理员”登录名的内存中身份验证
-
+  
   ```java
   public void configure(AuthenticationManagerBuilder auth) {
       auth
@@ -37,12 +38,10 @@
   }
   ```
 
-  
-
 #### configure(WebSecurity)
 
 - 用于影响全局安全性的配置设置（忽略资源，设置调试模式，通过实现自定义防火墙定义拒绝请求）。例如，以下方法将导致以/ resources /开头的任何请求都被忽略，以进行身份验证。
-
+  
   ```java
   public void configure(WebSecurity web) throws Exception {
       web
@@ -51,12 +50,10 @@
   }
   ```
 
-  
-
 #### configure(HttpSecurity)
 
 - 允许基于选择匹配在资源级别配置基于Web的安全性-例如，以下示例将以/ admin /开头的URL限制为具有ADMIN角色的用户，并声明需要使用其他任何URL成功认证。
-
+  
   ```java
   protected void configure(HttpSecurity http) throws Exception {
       http
@@ -65,8 +62,6 @@
           .anyRequest().authenticated()
   }
   ```
-
-
 
 ### AuthenticationManager
 

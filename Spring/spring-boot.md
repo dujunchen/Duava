@@ -5,6 +5,7 @@
 ## @SpringBootApplication
 
 - 主要由@SpringBootConfiguration、@EnableAutoConfiguration、@ComponentScan组成，其中@EnableAutoConfiguration是核心，@EnableAutoConfiguration又包含了@AutoConfigurationPackage和@Import(AutoConfigurationImportSelector.class)
+- @ComponentScan只能用来扫描注册springboot**本项目包中定义的bean**，而项目pom中引入的依赖包中定义的bean并不会被扫描注册。而 spring.factories可以帮助我们扫描加载到**项目依赖包中的 bean**
 
 ### @AutoConfigurationPackage
 
@@ -15,8 +16,11 @@
 - AutoConfigurationImportSelector是一个Bean注入选择器，其selectImports()方法用来确定最终向IOC中注入的Bean。
 
 - 首先会通过spring.boot.enableautoconfiguration=true检查自动配置是否开启，默认开启
+
 - 加载spring-boot-autoconfigure包下META-INF/spring-autoconfigure-metadata.properties中的内容到PropertiesAutoConfigurationMetadata中。这个主要是为过滤后面候选配置类是否满足加载条件做准备的，新版本已经删除该逻辑
+
 - 使用SpringFactoriesLoader加载META-INF/spring.factories文件中所有以org.springframework.boot.autoconfigure.EnableAutoConfiguration为key的自动配置类，并去重。获取@EnableAutoConfiguration的exclude和excludeName属性，并排除指定配置类。获取org.springframework.boot.autoconfigure.AutoConfigurationImportFilter为key的过滤类，过滤不满足加载条件的配置类。
+
 - 返回最终需要导入的配置类，并将其导入IOC
 
 ## SpringApplication
@@ -50,6 +54,3 @@
 - SpringApplicationRunListener.started()异步或者同步广播"容器已启动"消息。
 - 从IOC中获取所有的ApplicationRunner或者CommandLineRunner实例，并调用其run()方法。
 - 整个SpringBoot应用启动完毕。
-
-
-

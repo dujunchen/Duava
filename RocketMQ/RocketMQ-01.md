@@ -47,21 +47,21 @@
 缺点包含以下几点：
 
 * 系统可用性降低
-
+  
   系统引入的外部依赖越多，系统稳定性越差。一旦MQ宕机，就会对业务造成影响。
-
+  
   如何保证MQ的高可用？
 
 * 系统复杂度提高
-
+  
   MQ的加入大大增加了系统的复杂度，以前系统间是同步的远程调用，现在是通过MQ进行异步调用。
-
+  
   如何保证消息没有被重复消费？怎么处理消息丢失情况？那么保证消息传递的顺序性？
 
 * 一致性问题
-
+  
   A系统处理完业务，通过MQ给B、C、D三个系统发消息数据，如果B系统、C系统处理成功，D系统处理失败。
-
+  
   如何保证消息数据处理的一致性？
 
 ## 1.3 各种MQ产品的比较
@@ -126,7 +126,7 @@ tail -f ~/logs/rocketmqlogs/broker.log
 ```
 
 * 问题描述：
-
+  
   RocketMQ默认的虚拟机内存较大，启动Broker如果因为内存不足失败，需要编辑如下两个配置文件，修改JVM内存大小
 
 ```shell
@@ -188,7 +188,9 @@ sh bin/mqshutdown broker
 - NameServer是一个几乎无状态节点，可集群部署，节点之间无任何信息同步。
 
 - Broker部署相对复杂，Broker分为Master与Slave，一个Master可以对应多个Slave，但是一个Slave只能对应一个Master，Master与Slave的对应关系通过指定相同的BrokerName，不同的BrokerId来定义，BrokerId为0表示Master，非0表示Slave。Master也可以部署多个。每个Broker与NameServer集群中的所有节点建立长连接，定时注册Topic信息到所有NameServer。
+
 - Producer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer取Topic路由信息，并向提供Topic服务的Master建立长连接，且定时向Master发送心跳。Producer完全无状态，可集群部署。
+
 - Consumer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer取Topic路由信息，并向提供Topic服务的Master、Slave建立长连接，且定时向Master、Slave发送心跳。Consumer既可以从Master订阅消息，也可以从Slave订阅消息，订阅规则由Broker配置决定。
 
 ### 3.2.3 集群模式
@@ -236,10 +238,10 @@ sh bin/mqshutdown broker
 
 ### 3.3.3 服务器环境
 
-| **序号** | **IP**         | **角色**                 | **架构模式**    |
-| -------- | -------------- | ------------------------ | --------------- |
-| 1        | 192.168.25.135 | nameserver、brokerserver | Master1、Slave2 |
-| 2        | 192.168.25.138 | nameserver、brokerserver | Master2、Slave1 |
+| **序号** | **IP**         | **角色**                  | **架构模式**       |
+| ------ | -------------- | ----------------------- | -------------- |
+| 1      | 192.168.25.135 | nameserver、brokerserver | Master1、Slave2 |
+| 2      | 192.168.25.138 | nameserver、brokerserver | Master2、Slave1 |
 
 ### 3.3.4 Host添加信息
 
@@ -1376,7 +1378,7 @@ tail -500f ~/logs/rocketmqlogs/broker.log
   <td rowspan=10 height=312 class=xl69 width=87 style='border-bottom:1.0pt;
   height:232.0pt;border-top:none;width:65pt'>consumeMessage</td>
   <td rowspan=10 class=xl72 width=87 style='border-bottom:1.0pt;
-  border-top:none;width:65pt'>消费消息。可以根据offset、开始&amp;结束时间戳、消息队列消费消息，配置不同执行不同消费逻辑，详见ConsumeMessageCommand。</td>
+  border-top:none;width:65pt'>消费消息。可以根据offset、开始&结束时间戳、消息队列消费消息，配置不同执行不同消费逻辑，详见ConsumeMessageCommand。</td>
   <td class=xl67 width=87 style='width:65pt'>-h</td>
   <td class=xl68 width=87 style='width:65pt'>打印帮助</td>
  </tr>
@@ -1984,26 +1986,26 @@ java -jar rocketmq-console-ng-1.0.0.jar
 
 ```java
 public class SyncProducer {
-	public static void main(String[] args) throws Exception {
-    	// 实例化消息生产者Producer
+    public static void main(String[] args) throws Exception {
+        // 实例化消息生产者Producer
         DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-    	// 设置NameServer的地址
-    	producer.setNamesrvAddr("localhost:9876");
-    	// 启动Producer实例
+        // 设置NameServer的地址
+        producer.setNamesrvAddr("localhost:9876");
+        // 启动Producer实例
         producer.start();
-    	for (int i = 0; i < 100; i++) {
-    	    // 创建消息，并指定Topic，Tag和消息体
-    	    Message msg = new Message("TopicTest" /* Topic */,
-        	"TagA" /* Tag */,
-        	("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
-        	);
-        	// 发送消息到一个Broker
+        for (int i = 0; i < 100; i++) {
+            // 创建消息，并指定Topic，Tag和消息体
+            Message msg = new Message("TopicTest" /* Topic */,
+            "TagA" /* Tag */,
+            ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
+            );
+            // 发送消息到一个Broker
             SendResult sendResult = producer.send(msg);
             // 通过sendResult返回消息是否成功送达
             System.out.printf("%s%n", sendResult);
-    	}
-    	// 如果不再发送消息，关闭Producer实例。
-    	producer.shutdown();
+        }
+        // 如果不再发送消息，关闭Producer实例。
+        producer.shutdown();
     }
 }
 ```
@@ -2014,17 +2016,17 @@ public class SyncProducer {
 
 ```java
 public class AsyncProducer {
-	public static void main(String[] args) throws Exception {
-    	// 实例化消息生产者Producer
+    public static void main(String[] args) throws Exception {
+        // 实例化消息生产者Producer
         DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-    	// 设置NameServer的地址
+        // 设置NameServer的地址
         producer.setNamesrvAddr("localhost:9876");
-    	// 启动Producer实例
+        // 启动Producer实例
         producer.start();
         producer.setRetryTimesWhenSendAsyncFailed(0);
-    	for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
                 final int index = i;
-            	// 创建消息，并指定Topic，Tag和消息体
+                // 创建消息，并指定Topic，Tag和消息体
                 Message msg = new Message("TopicTest",
                     "TagA",
                     "OrderID188",
@@ -2038,13 +2040,13 @@ public class AsyncProducer {
                     }
                     @Override
                     public void onException(Throwable e) {
-      	              System.out.printf("%-10d Exception %s %n", index, e);
-      	              e.printStackTrace();
+                        System.out.printf("%-10d Exception %s %n", index, e);
+                        e.printStackTrace();
                     }
-            	});
-    	}
-    	// 如果不再发送消息，关闭Producer实例。
-    	producer.shutdown();
+                });
+        }
+        // 如果不再发送消息，关闭Producer实例。
+        producer.shutdown();
     }
 }
 ```
@@ -2055,25 +2057,25 @@ public class AsyncProducer {
 
 ```java
 public class OnewayProducer {
-	public static void main(String[] args) throws Exception{
-    	// 实例化消息生产者Producer
+    public static void main(String[] args) throws Exception{
+        // 实例化消息生产者Producer
         DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-    	// 设置NameServer的地址
+        // 设置NameServer的地址
         producer.setNamesrvAddr("localhost:9876");
-    	// 启动Producer实例
+        // 启动Producer实例
         producer.start();
-    	for (int i = 0; i < 100; i++) {
-        	// 创建消息，并指定Topic，Tag和消息体
-        	Message msg = new Message("TopicTest" /* Topic */,
+        for (int i = 0; i < 100; i++) {
+            // 创建消息，并指定Topic，Tag和消息体
+            Message msg = new Message("TopicTest" /* Topic */,
                 "TagA" /* Tag */,
                 ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
-        	);
-        	// 发送单向消息，没有任何返回结果
-        	producer.sendOneway(msg);
+            );
+            // 发送单向消息，没有任何返回结果
+            producer.sendOneway(msg);
 
-    	}
-    	// 如果不再发送消息，关闭Producer实例。
-    	producer.shutdown();
+        }
+        // 如果不再发送消息，关闭Producer实例。
+        producer.shutdown();
     }
 }
 ```
@@ -2438,7 +2440,7 @@ public class ListSplitter implements Iterator<List<Message>> {
     public boolean hasNext() {
        return currIndex < messages.size();
    }
-   	@Override 
+       @Override 
     public List<Message> next() {
        int nextIndex = currIndex;
        int totalSize = 0;
@@ -2574,8 +2576,6 @@ consumer.start();
 ###4.6.1 流程分析
 
 ![](img/事务消息.png)
-
-
 
 上图说明了事务消息的大致方案，其中分为两个流程：正常事务消息的发送及提交、事务消息的补偿流程。
 

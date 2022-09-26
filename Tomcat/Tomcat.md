@@ -58,8 +58,6 @@
 
 - Wrapper是Container体系中最底层的Container，代表了一个Servlet实例
 
-
-
 ## Tomcat执行流程核心源码
 
 ### 启动阶段
@@ -115,4 +113,3 @@
 - Bootstrap#main方法中在创建Bootstrap后会调用Bootstrap#init()方法，会调用initClassLoaders()完成对commonLoader，catalinaLoader，sharedLoader加载器的创建，默认情况下都是commonLoader实例。使用catalinaLoader加载Tomcat运行必须的类，以及Catalina类，并且把sharedLoader设置为Catalina的parentClassLoader
 - WebAppClassLoader创建是在StandardContext的startInternal()中，WebAppLoader是WebAppClassLoader的管理组件，里面的WebappClassLoaderBase classLoader才是真正封装的WebAppClassLoader。WebAppLoader也实现了Lifecycle接口，其startInternal()中完成Classloader的创建，具体的Classloader类型是ParallelWebappClassLoader，然后调用WebappClassLoaderBase的start()完成对Web应用的/WEB-INF/classes和/WEB-INF/lib的数据加载
 - WebappClassLoaderBase是Tomcat自定义的类加载器，重写了ClassLoader的loadClass()和findClass()，findClass()会先从Web服务本地目录查找，如果没有找到，再调用父类加载配置的其他路径下的资源。loadClass()的主要逻辑是先从Tomcat本地缓存中获取加载过的Class，如果没有获取到，再从JVM的缓存中获取，如果没有获取到，会先尝试使用javaseClassLoader去加载JavaSE自带的类库，比如rt.jar和$JAVA_HOME/jre/lib/ext目录下的jar，来保证JDK自带的类库的安全。如果delegateLoad为true，则会先按照双亲委托模型由parent加载器（commonLoader或者sharedLoader）加载，加载不到然后再从本地Web目录加载。如果delegateLoad为false，则会打破双亲委托模型，先从本地Web目录加载，加载不了再由parent加载器（commonLoader或者sharedLoader）加载
-

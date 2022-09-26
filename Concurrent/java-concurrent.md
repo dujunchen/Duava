@@ -1038,7 +1038,7 @@ new ThreadPoolExecutor(1, 1,0L, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<Ru
 ```
 
 - 核心线程数和最大线程数都等于1，其他参数和FixedThreadPool相同。
-- 使用场景：要保证多个任务串行执行，和直接 new Thread方式创建的单线程相比，在线程执行中发生异常后，线程池会重新创建一个新的线程继续执行队列中的任务，保证可靠性。和newFixedThreadPool(1)相比，SingleThreadExecutor返回的是一个ThreadPoolExecutor的包装类FinalizableDelegatedExecutorService，里面只包含了一部分线程池的接口，一旦核心线程数确定，后续无法再改变，而FixedThreadPool可以再修改
+- 使用场景：可以保证多个任务串行执行，和直接 new Thread方式创建的单线程相比，在线程执行中发生异常后，线程池会重新创建一个新的线程继续执行队列中的任务，保证可靠性。和newFixedThreadPool(1)相比，SingleThreadExecutor返回的是一个ThreadPoolExecutor的包装类FinalizableDelegatedExecutorService，里面只包含了一部分线程池的接口，一旦核心线程数确定，后续无法再改变，而FixedThreadPool可以再修改
 - 缺点：如果不同业务使用同一个线程池，有可能会出现饥饿现象，同FixedThreadPool
 
 ###### FixedThreadPool
